@@ -1,3 +1,4 @@
+%asdasd
 :- use_module(library(lists)).
 
 % initial_board(?Board).
