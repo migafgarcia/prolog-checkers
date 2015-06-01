@@ -303,3 +303,18 @@ maximizing(w).
 maximizing(wq).
 minimizing(b).
 minimizing(bq).
+
+next_player(1, 2).
+next_player(2, 1).
+
+player_piece(1, w).
+player_piece(1, wq).
+player_piece(2, b).
+player_piece(2, bq).
+
+all_next_moves(Piece, Line, [Line, Board], [NewBoards]) :-
+	Y is 0, X is 0, 
+
+%minimax(Board, Turn, Depth, BestBoard) :-
+
+	
