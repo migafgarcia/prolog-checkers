@@ -276,6 +276,22 @@ get_max_board(Board1, Eval1, Board2, Eval2, Board1) :-
 	Eval1 >= Eval2.
 get_max_board(Board1, Eval1, Board2, Eval2, Board2) :-
 	Eval1 < Eval2.
+
+
+min_boards([Board], Board).
+min_boards([Board|Boards], BestBoard) :-
+	min_boards(Boards, BestBoard1),
+	min_board(Board, BestBoard1, BestBoard).
+
+min_board(Board1, Board2, BestBoard) :-
+	evaluate_board(Board1, Eval1),
+	evaluate_board(Board2, Eval2),
+	get_min_board(Board1, Eval1, Board2, Eval2, BestBoard).
+	
+get_min_board(Board1, Eval1, Board2, Eval2, Board1) :-
+	Eval1 < Eval2.
+get_min_board(Board1, Eval1, Board2, Eval2, Board2) :-
+	Eval1 >= Eval2.
 	
 print_board([]) :- nl.
 print_board([Line|Board]) :- print_line(Line), nl, print_board(Board).
@@ -283,3 +299,7 @@ print_board([Line|Board]) :- print_line(Line), nl, print_board(Board).
 print_line([]).
 print_line([Piece|Line]) :- print(Piece), print_line(Line). 
 
+maximizing(w).
+maximizing(wq).
+minimizing(b).
+minimizing(bq).
