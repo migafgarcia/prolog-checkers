@@ -1,5 +1,7 @@
 :- use_module(library(lists)).
 
+% I was here
+
 % initial_board(?Board).
 % b = black piece
 % w = white piece
