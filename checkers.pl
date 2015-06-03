@@ -309,14 +309,42 @@ minimizing(bq).
 next_player(1, 2).
 next_player(2, 1).
 
-player_piece(1, w).
-player_piece(1, wq).
-player_piece(2, b).
-player_piece(2, bq).
+player_piece(1, [w, wq]).
+player_piece(2, [b, bq]).
 
-all_next_moves(Piece, Line, [Line, Board], [NewBoards]) :-
-	Y is 0, X is 0, 
+all_next_moves([Pieces], Board, NewBoard) :-
+	member(Y, [0,1,2,3,4,5,6,7]),
+	member(X, [0,1,2,3,4,5,6,7]),
+	member(Piece, Pieces),
+	pos(X, Y, Board, Piece),
+	next_move(X, Y, Piece, Board,  NewBoard).
 
-%minimax(Board, Turn, Depth, BestBoard) :-
+% minimax(Board, BestBoard, Piece, Depth) :-
+% 	maximizing(Piece),
+% 	bagof(NewBoard, all_next_moves(Piece, Board, NewBoard), NewBoards),
+% 	max_boards(NewBoards, BestBoard),
+% 	minimax(BestBoard
+	
+% 	!.
 
+
+% minimax(Board, BestBoard, Piece, Depth) :-
+% 	minimizing(Piece),
+% 	bagof(NewBoard, all_next_moves(Piece, Board, NewBoard), NewBoards),
+% 	min_boards(NewBoards, BestBoard),
+% 	Depth is Depth + 1,
+% 	!.
+
+
+minimax(Player, Board, BestBoard, Val) :-
+	next_player(Player, OtherPlayer),
+	player_piece(OtherPlayer, Pieces),
+	bagof(NewBoard, all_next_moves(Pieces, Board, NewBoard), NewBoards), !,
+	best_board(OtherPlayer, NewBoards, BestBoard, Val).
+
+best_board(Player, [NewBoard|NewBoards], BestBoard, BestVal) :-
+	minimax(Player, NewBoard, _, ChildVal), %Recurse into enemy player
+	best_board(Player, NewBoards, NewBestBoard, NewVal), %
+	betterof(Player, NewBoard,  
+	
 	
