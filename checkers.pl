@@ -49,6 +49,16 @@ test_board_2([
 	      [w,0,w,0,w,0,w,0],
 	      [0,w,0,w,0,w,0,w],
 	      [w,0,w,0,w,0,w,0]]).
+
+test_board_3([
+	     [0,1,0,w,0,1,0,1],
+	     [1,0,1,0,1,0,1,0],
+	     [0,1,0,1,0,1,0,1],
+	     [1,0,1,0,1,0,1,0],
+	     [0,b,0,1,0,1,0,1],
+	     [1,0,1,0,1,0,1,0],
+	     [0,1,0,1,0,1,0,1],
+	     [1,0,1,0,1,0,1,0]]).
 % pos(+X, +Y, +Board, -Piece).
 pos(X, Y, Board, Piece) :-
 	nth0(Y, Board, XBoard),
@@ -252,48 +262,6 @@ next_move(X, Y, Piece, Board, NewBoard) :-
 	\+is_occupied(X1, Y1, Board),
 	move(X, Y, X1, Y1, Board, NewBoard).
 
-% max_board( [Board], Eval, Board) :-
-% 	evaluate_board(Eval).
-% max_board([Board|Boards], Eval, BestBoard) :-
-% 	evaluate_board(Eval),
-% 	max_board(Boards, Evals, BestBoard1),
-	
-
-
-
-% max(?Boards, ?Board).
-% Given a list of boards, returns the one with maximum evaluation
-% Aux: max_board/3, get_max_board/5
-max_boards([Board], Board).
-max_boards([Board|Boards], BestBoard) :-
-	max_boards(Boards, BestBoard1),
-	max_board(Board, BestBoard1, BestBoard).
-
-max_board(Board1, Board2, BestBoard) :-
-	evaluate_board(Board1, Eval1),
-	evaluate_board(Board2, Eval2),
-	get_max_board(Board1, Eval1, Board2, Eval2, BestBoard).
-	
-get_max_board(Board1, Eval1, Board2, Eval2, Board1) :-
-	Eval1 >= Eval2.
-get_max_board(Board1, Eval1, Board2, Eval2, Board2) :-
-	Eval1 < Eval2.
-
-
-min_boards([Board], Board).
-min_boards([Board|Boards], BestBoard) :-
-	min_boards(Boards, BestBoard1),
-	min_board(Board, BestBoard1, BestBoard).
-
-min_board(Board1, Board2, BestBoard) :-
-	evaluate_board(Board1, Eval1),
-	evaluate_board(Board2, Eval2),
-	get_min_board(Board1, Eval1, Board2, Eval2, BestBoard).
-	
-get_min_board(Board1, Eval1, Board2, Eval2, Board1) :-
-	Eval1 < Eval2.
-get_min_board(Board1, Eval1, Board2, Eval2, Board2) :-
-	Eval1 >= Eval2.
 	
 print_board([]) :- nl.
 print_board([Line|Board]) :- print_line(Line), nl, print_board(Board).
@@ -301,10 +269,9 @@ print_board([Line|Board]) :- print_line(Line), nl, print_board(Board).
 print_line([]).
 print_line([Piece|Line]) :- print(Piece), print_line(Line). 
 
-maximizing(w).
-maximizing(wq).
-minimizing(b).
-minimizing(bq).
+maximizing(1).
+minimizing(2).
+
 
 next_player(1, 2).
 next_player(2, 1).
@@ -312,39 +279,45 @@ next_player(2, 1).
 player_piece(1, [w, wq]).
 player_piece(2, [b, bq]).
 
-all_next_moves([Pieces], Board, NewBoard) :-
+all_next_moves(Pieces, Board, NewBoard) :-
 	member(Y, [0,1,2,3,4,5,6,7]),
 	member(X, [0,1,2,3,4,5,6,7]),
 	member(Piece, Pieces),
 	pos(X, Y, Board, Piece),
 	next_move(X, Y, Piece, Board,  NewBoard).
 
-% minimax(Board, BestBoard, Piece, Depth) :-
-% 	maximizing(Piece),
-% 	bagof(NewBoard, all_next_moves(Piece, Board, NewBoard), NewBoards),
-% 	max_boards(NewBoards, BestBoard),
-% 	minimax(BestBoard
-	
-% 	!.
 
-
-% minimax(Board, BestBoard, Piece, Depth) :-
-% 	minimizing(Piece),
-% 	bagof(NewBoard, all_next_moves(Piece, Board, NewBoard), NewBoards),
-% 	min_boards(NewBoards, BestBoard),
-% 	Depth is Depth + 1,
-% 	!.
-
-
-minimax(Player, Board, BestBoard, Val) :-
-	next_player(Player, OtherPlayer),
+minimax(Player, Board, NextBoard, Val, Depth) :-
+	Depth < 4,
+	NewDepth is Depth + 1,
+	next_player(Player, OtherPlayer), !,
 	player_piece(OtherPlayer, Pieces),
-	bagof(NewBoard, all_next_moves(Pieces, Board, NewBoard), NewBoards), !,
-	best_board(OtherPlayer, NewBoards, BestBoard, Val).
+	bagof(NewBoard, all_next_moves(Pieces, Board, NewBoard), Moves),
+	best(OtherPlayer, Moves, NextBoard, Val, NewDepth).
 
-best_board(Player, [NewBoard|NewBoards], BestBoard, BestVal) :-
-	minimax(Player, NewBoard, _, ChildVal), %Recurse into enemy player
-	best_board(Player, NewBoards, NewBestBoard, NewVal), %
-	betterof(Player, NewBoard,  
-	
-	
+% Board doesnt have child
+minimax(Player, Board, _, Val, Depth) :-
+	evaluate_board(Board, Val).
+
+best(Player, [Board], Board, Val, Depth) :-
+	minimax(Player, Board, _, Val, Depth), !.
+
+best(Player, [Board|Boards], BestBoard, BestVal, Depth) :-
+	minimax(Player, Board, NextBoard, Val, Depth),
+	best(Player, Boards, BestBoard1, BestVal1, Depth),
+	betterof(Player, Board, Val, BestBoard1, BestVal1, BestBoard, BestVal).
+
+
+betterof(Player, Board1, Val1, Board2, Val2, Board1, Val1) :-
+	maximizing(Player),
+	Val1 >= Val2, !.
+betterof(Player, Board1, Val1, Board2, Val2, Board2, Val2) :-
+	maximizing(Player),
+	Val2 >= Val1, !.
+
+betterof(Player, Board1, Val1, Board2, Val2, Board1, Val1) :-
+	minimizing(Player),
+	Val1 =< Val2, !.
+betterof(Player, Board1, Val1, Board2, Val2, Board2, Val2) :-
+	minimizing(Player),
+	Val2 =< Val1, !.
