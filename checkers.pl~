@@ -65,17 +65,18 @@ pos(X, Y, Board, Piece) :-
 	nth0(X, XBoard, Piece).
 
 
-% place(+N, +Piece, +List, -NewList).
-place_in_line(N, Piece, [_|List], [Piece|List]) :- N == 0, !.
-place_in_line(N, Piece, [X|List], [X|NewList]) :-
+% replace(+N, +Piece, +List, -NewList).
+replace_in_line(N, Piece, [X|List], [Piece|List]) :- N == 0.
+replace_in_line(N, Piece, [X|List], [X|NewList]) :-
+	N \= 0,
 	N1 is N-1,
-	place_in_line(N1, Piece, List, NewList).
+	replace_in_line(N1, Piece, List, NewList).
 
 % replace(+X,, +Y, +Piece, +Board, -NewBoard).
 % Places/Replaces a piece in the board
 replace_in_board(X, Y, Piece, [Line|Board], [NewLine|Board]) :-
 	Y == 0,
-	place_in_line(X, Piece, Line, NewLine).
+	replace_in_line(X, Piece, Line, NewLine).
 replace_in_board(X, Y, Piece, [Line|Board], [Line|NewBoard]) :-
 	Y \= 0,
 	Y1 is Y-1,
