@@ -51,13 +51,13 @@ test_board_2([
 	      [w,0,w,0,w,0,w,0]]).
 
 test_board_3([
-	     [0,1,0,wq,0,1,0,1],
-	     [1,0,1,0,1,0,1,0],
+	     [0,1,0,1,0,1,0,1],
+	     [1,0,w,0,1,0,1,0],
 	     [0,1,0,1,0,1,0,1],
 	     [1,0,1,0,1,0,1,0],
 	     [0,b,0,1,0,1,0,1],
 	     [1,0,1,0,1,0,1,0],
-	     [0,1,0,1,0,1,0,1],
+	     [0,1,0,b,0,1,0,1],
 	     [1,0,1,0,1,0,1,0]]).
 % pos(+X, +Y, +Board, -Piece).
 pos(X, Y, Board, Piece) :-
@@ -143,73 +143,90 @@ evaluate_line([Piece|Line], Evaluation) :-
 % next_move(+X, +Y, +Board, -NewBoard).
 
 %%%%%%%%%%%%%%% WHITE %%%%%%%%%%%%%%% 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == w,
+next_move(X, Y, w, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y - 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X - 2, Y2  is Y - 2,
 	\+is_occupied(X2, Y2, Board),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == w,
+next_move(X, Y, w, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y - 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X + 2, Y2  is Y - 2,
 	\+is_occupied(X2, Y2, Board),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == w,
+next_move(X, Y, w, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y - 1,
 	\+is_occupied(X1, Y1, Board),
-	move(X, Y, X1, Y1, Board, NewBoard).
+	move(X, Y, X1, Y1, Board, NewBoard1),
+	morph(X1, Y1, Piece, NewBoard1, NewBoard).
 
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == w,
+next_move(X, Y, w, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y - 1,
 	\+is_occupied(X1, Y1, Board),
-	move(X, Y, X1, Y1, Board, NewBoard).
+	move(X, Y, X1, Y1, Board, NewBoard1),
+	morph(X1, Y1, Piece, NewBoard1, NewBoard).
 
 
+queen(w, wq).
+queen(b, bq).
+
+morph(X, Y, b, Board, NewBoard) :-
+	length(Board, MaxY),
+	Y == MaxY,
+	queen(Piece, Queen),
+	replace_in_board(X, Y, Queen, Board, NewBoard).
+	
+morph(X, Y, w, Board, NewBoard) :-
+	Y == 0,
+	queen(Piece, Queen),
+	replace_in_board(X, Y, Queen, Board, NewBoard).
+
+morph(_, _, Piece, Board, Board) :-
+	Piece \= w,
+	Piece \= b.
 
 
 %%%%%%%%%%%%%%% BLACK %%%%%%%%%%%%%%%
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == b,
+next_move(X, Y, b, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y + 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X - 2, Y2  is Y + 2,
 	\+is_occupied(X2, Y2, Board),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	length(Board, MaxY),
-	
-	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == b,
+next_move(X, Y, b, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y + 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X + 2, Y2  is Y + 2,
 	\+is_occupied(X2, Y2, Board),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == b,
+next_move(X, Y, b, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y + 1,
 	\+is_occupied(X1, Y1, Board),
-	move(X, Y, X1, Y1, Board, NewBoard).
+	move(X, Y, X1, Y1, Board, NewBoard1),
+	morph(X1, Y1, Piece, NewBoard1, NewBoard).
 
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == b,
+
+next_move(X, Y, b, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y + 1,
 	\+is_occupied(X1, Y1, Board),
-	move(X, Y, X1, Y1, Board, NewBoard).
+	move(X, Y, X1, Y1, Board, NewBoard1),
+	morph(X1, Y1, Piece, NewBoard1, NewBoard).
+
 
 
 %%%%%%%%%%%%%%% WHITE AND BLACK QUEEN %%%%%%%%%%%%%%% 
@@ -318,20 +335,20 @@ best(Player, [Board], Board, Val, Depth) :-
 best(Player, [Board|Boards], BestBoard, BestVal, Depth) :-
 	minimax(Player, Board, NextBoard, Val, Depth),
 	best(Player, Boards, BestBoard1, BestVal1, Depth),
-	betterof(Player, Board, Val, BestBoard1, BestVal1, BestBoard, BestVal).
+	better_of(Player, Board, Val, BestBoard1, BestVal1, BestBoard, BestVal).
 
 
-betterof(Player, Board1, Val1, Board2, Val2, Board1, Val1) :-
+better_of(Player, Board1, Val1, Board2, Val2, Board1, Val1) :-
 	maximizing(Player),
 	Val1 >= Val2, !.
-betterof(Player, Board1, Val1, Board2, Val2, Board2, Val2) :-
+better_of(Player, Board1, Val1, Board2, Val2, Board2, Val2) :-
 	maximizing(Player),
 	Val2 >= Val1, !.
 
-betterof(Player, Board1, Val1, Board2, Val2, Board1, Val1) :-
+better_of(Player, Board1, Val1, Board2, Val2, Board1, Val1) :-
 	minimizing(Player),
 	Val1 =< Val2, !.
-betterof(Player, Board1, Val1, Board2, Val2, Board2, Val2) :-
+better_of(Player, Board1, Val1, Board2, Val2, Board2, Val2) :-
 	minimizing(Player),
 	Val2 =< Val1, !.
 
