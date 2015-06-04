@@ -1,5 +1,6 @@
 :- use_module(library(lists)).
 
+% I was here
 
 % initial_board(?Board).
 % b = black piece
@@ -58,24 +59,24 @@ test_board_3([
 	     [1,0,1,0,1,0,1,0],
 	     [0,1,0,b,0,1,0,1],
 	     [1,0,1,0,1,0,1,0]]).
-
 % pos(+X, +Y, +Board, -Piece).
 pos(X, Y, Board, Piece) :-
 	nth0(Y, Board, XBoard),
 	nth0(X, XBoard, Piece).
 
 
-% place(+N, +Piece, +List, -NewList).
-place_in_line(N, Piece, [_|List], [Piece|List]) :- N == 0, !.
-place_in_line(N, Piece, [X|List], [X|NewList]) :-
+% replace(+N, +Piece, +List, -NewList).
+replace_in_line(N, Piece, [X|List], [Piece|List]) :- N == 0.
+replace_in_line(N, Piece, [X|List], [X|NewList]) :-
+	N \= 0,
 	N1 is N-1,
-	place_in_line(N1, Piece, List, NewList).
+	replace_in_line(N1, Piece, List, NewList).
 
 % replace(+X,, +Y, +Piece, +Board, -NewBoard).
 % Places/Replaces a piece in the board
 replace_in_board(X, Y, Piece, [Line|Board], [NewLine|Board]) :-
 	Y == 0,
-	place_in_line(X, Piece, Line, NewLine).
+	replace_in_line(X, Piece, Line, NewLine).
 replace_in_board(X, Y, Piece, [Line|Board], [Line|NewBoard]) :-
 	Y \= 0,
 	Y1 is Y-1,
@@ -147,8 +148,10 @@ next_move(X, Y, w, Board, NewBoard) :-
 	is_occupied(X1, Y1, Board),
 	X2 is X - 2, Y2  is Y - 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [b,bq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	morph(X2, Y2, w, NewBoard1, NewBoard2),
 	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
 next_move(X, Y, w, Board, NewBoard) :-
@@ -156,22 +159,24 @@ next_move(X, Y, w, Board, NewBoard) :-
 	is_occupied(X1, Y1, Board),
 	X2 is X + 2, Y2  is Y - 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [b,bq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	morph(X2, Y2, w, NewBoard1, NewBoard2),
 	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
 next_move(X, Y, w, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y - 1,
 	\+is_occupied(X1, Y1, Board),
 	move(X, Y, X1, Y1, Board, NewBoard1),
-	morph(X1, Y1, Piece, NewBoard1, NewBoard).
+	morph(X1, Y1, w, NewBoard1, NewBoard).
 
 
 next_move(X, Y, w, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y - 1,
 	\+is_occupied(X1, Y1, Board),
 	move(X, Y, X1, Y1, Board, NewBoard1),
-	morph(X1, Y1, Piece, NewBoard1, NewBoard).
+	morph(X1, Y1, w, NewBoard1, NewBoard).
 
 
 queen(w, wq).
@@ -183,14 +188,11 @@ morph(X, Y, b, Board, NewBoard) :-
 	queen(Piece, Queen),
 	replace_in_board(X, Y, Queen, Board, NewBoard).
 	
-morph(X, Y, w, Board, NewBoard) :-
-	Y == 0,
+morph(X, 0, w, Board, NewBoard) :-
 	queen(Piece, Queen),
 	replace_in_board(X, Y, Queen, Board, NewBoard).
 
-morph(_, _, Piece, Board, Board) :-
-	Piece \= w,
-	Piece \= b.
+morph(_, _, Piece, Board, Board).
 
 
 %%%%%%%%%%%%%%% BLACK %%%%%%%%%%%%%%%
@@ -199,8 +201,10 @@ next_move(X, Y, b, Board, NewBoard) :-
 	is_occupied(X1, Y1, Board),
 	X2 is X - 2, Y2  is Y + 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [w,wq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	morph(X2, Y2, b, NewBoard1, NewBoard2),
 	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
 next_move(X, Y, b, Board, NewBoard) :-
@@ -208,62 +212,109 @@ next_move(X, Y, b, Board, NewBoard) :-
 	is_occupied(X1, Y1, Board),
 	X2 is X + 2, Y2  is Y + 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [w,wq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
-	morph(X2, Y2, Piece, NewBoard1, NewBoard2),
+	morph(X2, Y2, b, NewBoard1, NewBoard2),
 	remove_from_board(X1,Y1,NewBoard2, NewBoard).
 
 next_move(X, Y, b, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y + 1,
 	\+is_occupied(X1, Y1, Board),
 	move(X, Y, X1, Y1, Board, NewBoard1),
-	morph(X1, Y1, Piece, NewBoard1, NewBoard).
-
-
+	morph(X1, Y1, b, NewBoard1, NewBoard).
 
 next_move(X, Y, b, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y + 1,
 	\+is_occupied(X1, Y1, Board),
 	move(X, Y, X1, Y1, Board, NewBoard1),
-	morph(X1, Y1, Piece, NewBoard1, NewBoard).
+	morph(X1, Y1, b, NewBoard1, NewBoard).
 
 
 
 %%%%%%%%%%%%%%% WHITE AND BLACK QUEEN %%%%%%%%%%%%%%% 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	member(Piece,[wq,bq]),
+next_move(X, Y, wq, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y - 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X - 2, Y2  is Y - 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [b,bq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
 	remove_from_board(X1,Y1,NewBoard1, NewBoard).
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	member(Piece,[wq,bq]),
+next_move(X, Y, wq, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y - 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X + 2, Y2  is Y - 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [b,bq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
 	remove_from_board(X1,Y1,NewBoard1, NewBoard).
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	member(Piece,[wq,bq]),
+next_move(X, Y, wq, Board, NewBoard) :-
 	X1 is X + 1, Y1 is Y + 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X + 2, Y2  is Y + 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [b,bq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
 	remove_from_board(X1,Y1,NewBoard1, NewBoard).
 
-next_move(X, Y, Piece, Board, NewBoard) :-
-	member(Piece,[wq,bq]),
+next_move(X, Y, wq, Board, NewBoard) :-
 	X1 is X - 1, Y1 is Y + 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X - 2, Y2  is Y + 2,
 	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [b,bq]),
 	move(X, Y, X2, Y2, Board, NewBoard1),
 	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+
+
+next_move(X, Y, bq, Board, NewBoard) :-
+	X1 is X - 1, Y1 is Y - 1,
+	is_occupied(X1, Y1, Board),
+	X2 is X - 2, Y2  is Y - 2,
+	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [w,wq]),
+	move(X, Y, X2, Y2, Board, NewBoard1),
+	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+
+next_move(X, Y, bq, Board, NewBoard) :-
+	X1 is X + 1, Y1 is Y - 1,
+	is_occupied(X1, Y1, Board),
+	X2 is X + 2, Y2  is Y - 2,
+	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [w,wq]),
+	move(X, Y, X2, Y2, Board, NewBoard1),
+	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+
+next_move(X, Y, bq, Board, NewBoard) :-
+	X1 is X + 1, Y1 is Y + 1,
+	is_occupied(X1, Y1, Board),
+	X2 is X + 2, Y2  is Y + 2,
+	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [w,wq]),
+	move(X, Y, X2, Y2, Board, NewBoard1),
+	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+
+next_move(X, Y, bq, Board, NewBoard) :-
+	X1 is X - 1, Y1 is Y + 1,
+	is_occupied(X1, Y1, Board),
+	X2 is X - 2, Y2  is Y + 2,
+	\+is_occupied(X2, Y2, Board),
+	pos(X1, Y1, Board, Eaten),
+	member(Eaten, [w,wq]),
+	move(X, Y, X2, Y2, Board, NewBoard1),
+	remove_from_board(X1,Y1,NewBoard1, NewBoard).
+
+
 
 next_move(X, Y, Piece, Board, NewBoard) :-
 	member(Piece,[wq,bq]),
