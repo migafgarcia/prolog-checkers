@@ -1,6 +1,5 @@
 :- use_module(library(lists)).
 
-% I was here
 
 % initial_board(?Board).
 % b = black piece
@@ -59,6 +58,7 @@ test_board_3([
 	     [1,0,1,0,1,0,1,0],
 	     [0,1,0,1,0,1,0,1],
 	     [1,0,1,0,1,0,1,0]]).
+
 % pos(+X, +Y, +Board, -Piece).
 pos(X, Y, Board, Piece) :-
 	nth0(Y, Board, XBoard),
