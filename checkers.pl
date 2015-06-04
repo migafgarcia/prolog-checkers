@@ -1,6 +1,5 @@
 :- use_module(library(lists)).
 
-% I was here
 
 % initial_board(?Board).
 % b = black piece
@@ -59,24 +58,24 @@ test_board_3([
 	     [1,0,1,0,1,0,1,0],
 	     [0,1,0,b,0,1,0,1],
 	     [1,0,1,0,1,0,1,0]]).
+
 % pos(+X, +Y, +Board, -Piece).
 pos(X, Y, Board, Piece) :-
 	nth0(Y, Board, XBoard),
 	nth0(X, XBoard, Piece).
 
 
-% replace(+N, +Piece, +List, -NewList).
-replace_in_line(N, Piece, [X|List], [Piece|List]) :- N == 0.
-replace_in_line(N, Piece, [X|List], [X|NewList]) :-
-	N \= 0,
+% place(+N, +Piece, +List, -NewList).
+place_in_line(N, Piece, [_|List], [Piece|List]) :- N == 0, !.
+place_in_line(N, Piece, [X|List], [X|NewList]) :-
 	N1 is N-1,
-	replace_in_line(N1, Piece, List, NewList).
+	place_in_line(N1, Piece, List, NewList).
 
 % replace(+X,, +Y, +Piece, +Board, -NewBoard).
 % Places/Replaces a piece in the board
 replace_in_board(X, Y, Piece, [Line|Board], [NewLine|Board]) :-
 	Y == 0,
-	replace_in_line(X, Piece, Line, NewLine).
+	place_in_line(X, Piece, Line, NewLine).
 replace_in_board(X, Y, Piece, [Line|Board], [Line|NewBoard]) :-
 	Y \= 0,
 	Y1 is Y-1,
