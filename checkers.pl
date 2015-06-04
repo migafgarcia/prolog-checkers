@@ -51,7 +51,7 @@ test_board_2([
 	      [w,0,w,0,w,0,w,0]]).
 
 test_board_3([
-	     [0,1,0,w,0,1,0,1],
+	     [0,1,0,wq,0,1,0,1],
 	     [1,0,1,0,1,0,1,0],
 	     [0,1,0,1,0,1,0,1],
 	     [1,0,1,0,1,0,1,0],
@@ -117,10 +117,21 @@ evaluate_board([Line|Board], Evaluation) :-
 
 
 evaluate_line([], 0).
-evaluate_line([Piece|Line], Evaluation) :- Piece == w, evaluate_line(Line, Remaining), Evaluation is Remaining + 1.
-evaluate_line([Piece|Line], Evaluation) :- Piece == b, evaluate_line(Line, Remaining), Evaluation is Remaining - 1.
-evaluate_line([Piece|Line], Evaluation) :- Piece == wq, evaluate_line(Line, Remaining), Evaluation is Remaining + 2.
-evaluate_line([Piece|Line], Evaluation) :- Piece == bq, evaluate_line(Line, Remaining), Evaluation is Remaining - 2.
+evaluate_line([Piece|Line], Evaluation) :-
+	Piece == w,
+	evaluate_line(Line, Remaining),
+	Evaluation is Remaining + 1.
+evaluate_line([Piece|Line], Evaluation) :-
+	Piece == b,
+	evaluate_line(Line, Remaining),
+	Evaluation is Remaining - 1.
+evaluate_line([Piece|Line], Evaluation) :-
+	Piece == wq, evaluate_line(Line, Remaining),
+	Evaluation is Remaining + 2.
+evaluate_line([Piece|Line], Evaluation) :-
+	Piece == bq,
+	evaluate_line(Line, Remaining),
+	Evaluation is Remaining - 2.
 evaluate_line([Piece|Line], Evaluation) :-
 	Piece \= w,
 	Piece \= b,
@@ -174,6 +185,8 @@ next_move(X, Y, Piece, Board, NewBoard) :-
 	X2 is X - 2, Y2  is Y + 2,
 	\+is_occupied(X2, Y2, Board),
 	move(X, Y, X2, Y2, Board, NewBoard1),
+	length(Board, MaxY),
+	
 	remove_from_board(X1,Y1,NewBoard1, NewBoard).
 
 next_move(X, Y, Piece, Board, NewBoard) :-
@@ -201,7 +214,7 @@ next_move(X, Y, Piece, Board, NewBoard) :-
 
 %%%%%%%%%%%%%%% WHITE AND BLACK QUEEN %%%%%%%%%%%%%%% 
 next_move(X, Y, Piece, Board, NewBoard) :-
-	Piece == wq,
+	member(Piece,[wq,bq]),
 	X1 is X - 1, Y1 is Y - 1,
 	is_occupied(X1, Y1, Board),
 	X2 is X - 2, Y2  is Y - 2,
@@ -321,3 +334,4 @@ betterof(Player, Board1, Val1, Board2, Val2, Board1, Val1) :-
 betterof(Player, Board1, Val1, Board2, Val2, Board2, Val2) :-
 	minimizing(Player),
 	Val2 =< Val1, !.
+
