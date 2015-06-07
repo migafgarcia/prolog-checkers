@@ -86,13 +86,25 @@ board_initialize_game_even(Line,Player):-
 % board_print(+Board).
 % Prints the board Board to the console.
 board_print(game_board(A,B,C,D,E,F,G,H)):-
+    tab(3),print(1), tab(2),print(2), tab(2),
+    print(3), tab(2),print(4), tab(2),
+    print(5), tab(2),print(6), tab(2),
+    print(7), tab(2),print(8), tab(2), nl,
+    print(1), tab(2),
     board_print_line(A),
+    print(2), tab(2),
     board_print_line(B),
+    print(3), tab(2),
     board_print_line(C),
+    print(4), tab(2),
     board_print_line(D),
+    print(5), tab(2),
     board_print_line(E),
+    print(6), tab(2),
     board_print_line(F),
+    print(7), tab(2),
     board_print_line(G),
+    print(8), tab(2),
     board_print_line(H).
 
 % board_print_line(+Line).
@@ -234,7 +246,12 @@ remove_from_board(Board,X,Y,New_Board):-
 move(Board,Xi,Yi,Xf,Yf,New_Board):-
     pos(Board,Xi,Yi,Piece),
     remove_from_board(Board,Xi,Yi,Temp_Board),
-    replace(Temp_Board,Xf,Yf,Piece,New_Board).
+    promote(Yf,Piece,Piece2),
+    replace(Temp_Board,Xf,Yf,Piece2,New_Board).
+
+promote(1,w,wq).
+promote(8,b,bq).
+promote(_,Piece,Piece).
 
 is_occupied(Board,X,Y):-
     pos(Board,X,Y,Element),
@@ -246,17 +263,75 @@ is_enemy(Board,X,Y,Player):-
     player_piece(N,Piece), !.
  
 
+
 % try to eat to the left
 next_move(Board,w,X,Y,New_Board):-
-    X1 is X - 1,
-    Y1 is Y - 1,
+    X > 2, Y > 2,
+    X1 is X - 1, Y1 is Y - 1,
     is_enemy(Board,X1,Y1,white),
-    X2 is X - 2,
-    Y2 is Y - 2,
+    X2 is X - 2, Y2 is Y - 2,
     \+is_occupied(Board,X2,Y2),
     move(Board,X,Y,X2,Y2,Temp_Board),
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
+% try to eat to the right
+next_move(Board,w,X,Y,New_Board):-
+    X < 7, Y > 2,
+    X1 is X + 1, Y1 is Y - 1,
+    is_enemy(Board,X1,Y1,white),
+    X2 is X + 2, Y2 is Y - 2,
+    \+is_occupied(Board,X2,Y2),
+    move(Board,X,Y,X2,Y2,Temp_Board),
+    remove_from_board(Temp_Board,X1,Y1,New_Board).
+
+% try to move to the left
+next_move(Board,w,X,Y,New_Board):-
+    X > 1, Y > 1,
+    X1 is X - 1, Y1 is Y - 1,
+    \+is_occupied(Board,X1,Y1),
+    move(Board,X,Y,X1,Y1,New_Board).
+
+% try to move to the right
+next_move(Board,w,X,Y,New_Board):-
+    X < 8, Y > 1,
+    X1 is X + 1, Y1 is Y - 1,
+    \+is_occupied(Board,X1,Y1),
+    move(Board,X,Y,X1,Y1,New_Board).
+
+
+% try to eat to the left
+next_move(Board,b,X,Y,New_Board):-
+    X > 2, Y < 7,
+    X1 is X - 1, Y1 is Y + 1,
+    is_enemy(Board,X1,Y1,black),
+    X2 is X - 2, Y2 is Y + 2,
+    \+is_occupied(Board,X2,Y2),
+    move(Board,X,Y,X2,Y2,Temp_Board),
+    remove_from_board(Temp_Board,X1,Y1,New_Board).
+
+% try to eat to the right
+next_move(Board,b,X,Y,New_Board):-
+    X < 7, Y < 7,
+    X1 is X + 1, Y1 is Y + 1,
+    is_enemy(Board,X1,Y1,black),
+    X2 is X + 2, Y2 is Y + 2,
+    \+is_occupied(Board,X2,Y2),
+    move(Board,X,Y,X2,Y2,Temp_Board),
+    remove_from_board(Temp_Board,X1,Y1,New_Board).
+
+% try to move to the left
+next_move(Board,b,X,Y,New_Board):-
+    X > 1, Y < 8, 
+    X1 is X - 1, Y1 is Y + 1,
+    \+is_occupied(Board,X1,Y1),
+    move(Board,X,Y,X1,Y1,New_Board).
+
+% try to move to the right
+next_move(Board,b,X,Y,New_Board):-
+    X < 8, Y < 8,
+    X1 is X + 1, Y1 is Y + 1,
+    \+is_occupied(Board,X1,Y1),
+    move(Board,X,Y,X1,Y1,New_Board).
 
 
 
