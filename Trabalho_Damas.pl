@@ -1,4 +1,4 @@
-:- use_module(library(lists)).
+:-use_module(library(lists)).
 
 % board(-Board).
 % Creates a board container, with uninitialized positions
@@ -12,33 +12,43 @@ board(game_board(A,B,C,D,E,F,G,H)):-
     functor(G,l,8), 
     functor(H,l,8).
 
+empty_board(
+	game_board(
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, 1, 0, 1, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, 1, 0, 1, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, 1, 0, 1, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, 1, 0, 1, 0)
+	    )).
+
 % board_initialize_empty(-Board).
-% Creates a empty board, i.e. initialized with 0 for black space and 1 for white space
+% Creates a empty board, i.e. initialized with 1 for black space and 0 for white space
 board_initialize_empty(game_board(A,B,C,D,E,F,G,H)):-
     board(game_board(A,B,C,D,E,F,G,H)),
-    board_initialize_empty_even(A),
-    board_initialize_empty_odd(B),
-    board_initialize_empty_even(C),
-    board_initialize_empty_odd(D),
-    board_initialize_empty_even(E),
-    board_initialize_empty_odd(F),
-    board_initialize_empty_even(G),
-    board_initialize_empty_odd(H).
+    board_initialize_empty_odd(A),
+    board_initialize_empty_even(B),
+    board_initialize_empty_odd(C),
+    board_initialize_empty_even(D),
+    board_initialize_empty_odd(E),
+    board_initialize_empty_even(F),
+    board_initialize_empty_odd(G),
+    board_initialize_empty_even(H).
 
 % board_initialize_game(-Board).
 % Creates a board with the initial state of a game, i.e. the white and the black pieces are placed.
 board_initialize_game(game_board(A,B,C,D,E,F,G,H)):-
     board(game_board(A,B,C,D,E,F,G,H)),
-    board_initialize_game_even(A,b),
-    board_initialize_game_odd(B,b),
-    board_initialize_game_even(C,b),
-    board_initialize_empty_odd(D),
-    board_initialize_empty_even(E),
-    board_initialize_game_odd(F,w),
-    board_initialize_game_even(G,w),
-    board_initialize_game_odd(H,w),
-    board_initialize_empty(Empty_Board),
-    assert(empty_board(Empty_Board)).
+    board_initialize_game_odd(A,b),
+    board_initialize_game_even(B,b),
+    board_initialize_game_odd(C,b),
+    board_initialize_empty_even(D),
+    board_initialize_empty_odd(E),
+    board_initialize_game_even(F,w),
+    board_initialize_game_odd(G,w),
+    board_initialize_game_even(H,w).
 
 % board_initialize_empty_odd(+Line).
 % Auxiliary function that initializes a line of the board with alternating black and white spaces.
@@ -59,18 +69,18 @@ board_initialize_empty_even(A):-
 % board_initialize_game_odd(+Line,+Player_Symbol).
 % Auxiliary function that initializes a line of the board. The player pieces and black spaces are alternaded. 
 board_initialize_game_odd(Line,Player):-
-    arg(1,Line,Player), arg(2,Line,0),
-    arg(3,Line,Player), arg(4,Line,0),
-    arg(5,Line,Player), arg(6,Line,0),
-    arg(7,Line,Player), arg(8,Line,0).
-
-% board_initialize_game_even(+Line,+Player_Symbol).
-% Auxiliary function that initializes a line of the board. The player pieces and black spaces are alternaded.
-board_initialize_game_even(Line,Player):-
     arg(1,Line,0), arg(2,Line,Player),
     arg(3,Line,0), arg(4,Line,Player),
     arg(5,Line,0), arg(6,Line,Player),
     arg(7,Line,0), arg(8,Line,Player).
+
+% board_initialize_game_even(+Line,+Player_Symbol).
+% Auxiliary function that initializes a line of the board. The player pieces and black spaces are alternaded.
+board_initialize_game_even(Line,Player):-
+    arg(1,Line,Player), arg(2,Line,0),
+    arg(3,Line,Player), arg(4,Line,0),
+    arg(5,Line,Player), arg(6,Line,0),
+    arg(7,Line,Player), arg(8,Line,0).
 
 
 % board_print(+Board).
@@ -100,9 +110,71 @@ board_print_line(Line):-
 
 % board_print_line_element(+Line,+Index).
 % Auxiliary function that prints a element of the board to the console.
+%board_print_line_element(Line,Index):-
+%    arg(Index,Line,E),
+%    print(E),
+%    tab(2).
+
+% board_print_line_element(+Line,+Index).
+% Auxiliary function that prints a element of the board to the console.
+%% board_print_line_element(Line,Index):-
+%%     arg(Index,Line,E),
+%%     E == 1, !,
+%%     %format('~c',[9632]), % black square
+%%     format('~c',[95]), % underscore
+%%     tab(2).
+%% board_print_line_element(Line,Index):-
+%%     arg(Index,Line,E),
+%%     E == 0, !,
+%%     tab(3). % just a white space
+%% board_print_line_element(Line,Index):-
+%%     arg(Index,Line,E),
+%%     E == w, !,
+%%     format('~c',[9675]), % circle outline
+%%     tab(2).
+%% board_print_line_element(Line,Index):-
+%%     arg(Index,Line,E),
+%%     E == b, !,
+%%     format('~c',[9679]), % filled circle
+%%     tab(2).
+%% board_print_line_element(Line,Index):-
+%%     arg(Index,Line,E),
+%%     print(E), % should never reach this state
+%%     tab(2).
 board_print_line_element(Line,Index):-
     arg(Index,Line,E),
-    print(E),
+    E == 1, !,
+    %format('~c',[9632]), % black square
+    format('~c',[95]), % underscore
+    tab(2).
+board_print_line_element(Line,Index):-
+    arg(Index,Line,E),
+    E == 0, !,
+    tab(3). % just a white space
+board_print_line_element(Line,Index):-
+    arg(Index,Line,E),
+    E == w, !,
+    format('~c',[9920]), % circle outline
+    tab(2).
+board_print_line_element(Line,Index):-
+    arg(Index,Line,E),
+    E == b, !,
+    format('~c',[9922]), % filled circle
+    tab(2).
+board_print_line_element(Line,Index):-
+    arg(Index,Line,E),
+    E == wq, !,
+    format('~c',[9921]), % circle outline
+    tab(2).
+board_print_line_element(Line,Index):-
+    arg(Index,Line,E),
+    E == bq, !,
+    format('~c',[9923]), % filled circle
+    tab(2).
+
+board_print_line_element(Line,Index):-
+    arg(Index,Line,E),
+    print(E), % should never reach this state
     tab(2).
 
 
@@ -154,21 +226,60 @@ replace_in_line(Line, X, Element, New_Line, Iterator):-
     Iterator_Next is Iterator + 1,
     replace_in_line(Line, X, Element, New_Line, Iterator_Next).
 
+remove_from_board(Board,X,Y,New_Board):-
+    empty_board(Empty_Board),
+    pos(Empty_Board,X,Y,Place),
+    replace(Board,X,Y,Place,New_Board).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+move(Board,Xi,Yi,Xf,Yf,New_Board):-
+    pos(Board,Xi,Yi,Piece),
+    remove_from_board(Board,Xi,Yi,Temp_Board),
+    replace(Temp_Board,Xf,Yf,Piece,New_Board).
+
+is_occupied(Board,X,Y):-
+    pos(Board,X,Y,Element),
+    \+number(Element).
+
+is_enemy(Board,X,Y,Player):-
+    pos(Board,X,Y,Piece),
+    next_player(Player,N),
+    player_piece(N,Piece), !.
+ 
+
+% try to eat to the left
+next_move(Board,w,X,Y,New_Board):-
+    X1 is X - 1,
+    Y1 is Y - 1,
+    is_enemy(Board,X1,Y1,white),
+    X2 is X - 2,
+    Y2 is Y - 2,
+    \+is_occupied(Board,X2,Y2),
+    move(Board,X,Y,X2,Y2,Temp_Board),
+    remove_from_board(Temp_Board,X1,Y1,New_Board).
+
+
 
 
 :-dynamic game_state_player_move/1.
-game_state_player_move(white).
+game_state_player_move(black).
 
 next_player(white,black).
 next_player(black,white).
 
+player_piece(white,w).
+player_piece(white,wq).
+player_piece(black,b).
+player_piece(black,bq).
 
-move(Player, Xi, Yi, Xf, Yf, Board):-
-    game_state_player_move(Player),
-    %...
-    next_player(Player,Next_Player),
-    retract(game_state_player_move(Player)),
-    assert(game_state_player_move(Next_Player)).
+player_direction(white,-1).
+player_direction(black,1).
 
+%move(Player, Xi, Yi, Xf, Yf, Board):-
+%    game_state_player_move(Player),
+%    %...
+%    next_player(Player,Next_Player),
+%    retract(game_state_player_move(Player)),
+%    assert(game_state_player_move(Next_Player)).
+
+
+%next_move(Board,w,X,Y,New_Board)
