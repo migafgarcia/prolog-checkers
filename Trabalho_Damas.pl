@@ -265,7 +265,7 @@ is_enemy(Board,X,Y,Player):-
 
 
 % try to eat to the left
-next_eat_move(Board,w,X,Y,New_Board):-
+next_eat_move(Board,w,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X > 2, Y > 2,
     X1 is X - 1, Y1 is Y - 1,
     is_enemy(Board,X1,Y1,white),
@@ -275,7 +275,7 @@ next_eat_move(Board,w,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat to the right
-next_eat_move(Board,w,X,Y,New_Board):-
+next_eat_move(Board,w,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X < 7, Y > 2,
     X1 is X + 1, Y1 is Y - 1,
     is_enemy(Board,X1,Y1,white),
@@ -285,14 +285,14 @@ next_eat_move(Board,w,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to move to the left
-next_move(Board,w,X,Y,New_Board):-
+next_move(Board,w,X,Y,m(X,Y,X1,Y1,New_Board)):-
     X > 1, Y > 1,
     X1 is X - 1, Y1 is Y - 1,
     \+is_occupied(Board,X1,Y1),
     move(Board,X,Y,X1,Y1,New_Board).
 
 % try to move to the right
-next_move(Board,w,X,Y,New_Board):-
+next_move(Board,w,X,Y,m(X,Y,X1,Y1,New_Board)):-
     X < 8, Y > 1,
     X1 is X + 1, Y1 is Y - 1,
     \+is_occupied(Board,X1,Y1),
@@ -300,7 +300,7 @@ next_move(Board,w,X,Y,New_Board):-
 
 
 % try to eat to the left
-next_eat_move(Board,b,X,Y,New_Board):-
+next_eat_move(Board,b,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X > 2, Y < 7,
     X1 is X - 1, Y1 is Y + 1,
     is_enemy(Board,X1,Y1,black),
@@ -310,7 +310,7 @@ next_eat_move(Board,b,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat to the right
-next_eat_move(Board,b,X,Y,New_Board):-
+next_eat_move(Board,b,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X < 7, Y < 7,
     X1 is X + 1, Y1 is Y + 1,
     is_enemy(Board,X1,Y1,black),
@@ -320,21 +320,21 @@ next_eat_move(Board,b,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to move to the left
-next_move(Board,b,X,Y,New_Board):-
+next_move(Board,b,X,Y,m(X,Y,X1,Y1,New_Board)):-
     X > 1, Y < 8, 
     X1 is X - 1, Y1 is Y + 1,
     \+is_occupied(Board,X1,Y1),
     move(Board,X,Y,X1,Y1,New_Board).
 
 % try to move to the right
-next_move(Board,b,X,Y,New_Board):-
+next_move(Board,b,X,Y,m(X,Y,X1,Y1,New_Board)):-
     X < 8, Y < 8,
     X1 is X + 1, Y1 is Y + 1,
     \+is_occupied(Board,X1,Y1),
     move(Board,X,Y,X1,Y1,New_Board).
 
 % try to eat forward left
-next_eat_move(Board,wq,X,Y,New_Board):-
+next_eat_move(Board,wq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X > 2, Y > 2,
     X1 is X - 1, Y1 is Y - 1,
     is_enemy(Board,X1,Y1,white),
@@ -344,7 +344,7 @@ next_eat_move(Board,wq,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat forward right
-next_eat_move(Board,wq,X,Y,New_Board):-
+next_eat_move(Board,wq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X < 7, Y > 2,
     X1 is X + 1, Y1 is Y - 1,
     is_enemy(Board,X1,Y1,white),
@@ -354,7 +354,7 @@ next_eat_move(Board,wq,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat backward left
-next_eat_move(Board,wq,X,Y,New_Board):-
+next_eat_move(Board,wq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X > 2, Y < 7,
     X1 is X - 1, Y1 is Y + 1,
     is_enemy(Board,X1,Y1,white),
@@ -364,7 +364,7 @@ next_eat_move(Board,wq,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 %try to eat backward right
-next_eat_move(Board,wq,X,Y,New_Board):-
+next_eat_move(Board,wq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X < 7, Y < 7,
     X1 is X + 1, Y1 is Y + 1,
     is_enemy(Board,X1,Y1,white),
@@ -374,7 +374,7 @@ next_eat_move(Board,wq,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat forward left
-next_eat_move(Board,bq,X,Y,New_Board):-
+next_eat_move(Board,bq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X > 2, Y < 7,
     X1 is X - 1, Y1 is Y + 1,
     is_enemy(Board,X1,Y1,black),
@@ -384,7 +384,7 @@ next_eat_move(Board,bq,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat forward right
-next_eat_move(Board,bq,X,Y,New_Board):-
+next_eat_move(Board,bq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X < 7, Y < 7,
     X1 is X + 1, Y1 is Y + 1,
     is_enemy(Board,X1,Y1,black),
@@ -394,7 +394,7 @@ next_eat_move(Board,bq,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat backward left
-next_eat_move(Board,bq,X,Y,New_Board):-
+next_eat_move(Board,bq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X > 2, Y > 2,
     X1 is X - 1, Y1 is Y - 1,
     is_enemy(Board,X1,Y1,black),
@@ -404,7 +404,7 @@ next_eat_move(Board,bq,X,Y,New_Board):-
     remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 % try to eat backward right
-next_eat_move(Board,bq,X,Y,New_Board):-
+next_eat_move(Board,bq,X,Y,e(X,Y,X2,Y2,New_Board)):-
     X < 7, Y > 2,
     X1 is X + 1, Y1 is Y - 1,
     is_enemy(Board,X1,Y1,black),
@@ -417,7 +417,7 @@ queen(wq).
 queen(bq).
 
 % move up left
-next_move(Board,Piece,X,Y,New_Board):-
+next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
     queen(Piece),
     X > 1, Y > 1,
     X1 is X - 1, Y1 is Y - 1,
@@ -425,7 +425,7 @@ next_move(Board,Piece,X,Y,New_Board):-
     move(Board,X,Y,X1,Y1,New_Board).
 
 % move up right
-next_move(Board,Piece,X,Y,New_Board):-
+next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
     queen(Piece),
     X < 8, Y > 1,
     X1 is X + 1, Y1 is Y - 1,
@@ -433,7 +433,7 @@ next_move(Board,Piece,X,Y,New_Board):-
     move(Board,X,Y,X1,Y1,New_Board).
 
 % move down left
-next_move(Board,Piece,X,Y,New_Board):-
+next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
     queen(Piece),
     X > 1, Y < 8,
     X1 is X - 1, Y1 is Y + 1,
@@ -441,12 +441,57 @@ next_move(Board,Piece,X,Y,New_Board):-
     move(Board,X,Y,X1,Y1,New_Board).
 
 % move down right
-next_move(Board,Piece,X,Y,New_Board):-
+next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
     queen(Piece),
     X < 8, Y < 8,
     X1 is X + 1, Y1 is Y + 1,
     \+is_occupied(Board,N1,Y1),
     move(Board,X,Y,X1,Y1,New_Board).
+
+
+list_available_moves(Board,Player,Moves):-
+    list_all_positions(Board,Player,Positions),
+    list_available_moves_aux(Board,Positions,Moves).
+
+list_available_moves_aux(Board,Positions,Moves):-
+    list_all_eat_moves(Board,Positions,Moves),
+    Moves \= [], !.
+list_available_moves_aux(Board,Positions,Moves):-
+    list_all_moves(Board,Positions,Moves).
+
+% list all eat moves
+list_all_eat_moves(_,[],[]):- !.
+list_all_eat_moves(Board,[p(E,X,Y)|Positions],[Move|Moves]):-
+    next_eat_move(Board,E,X,Y,Move),
+    list_all_eat_moves(Board,Positions,Moves).
+list_all_eat_moves(Board,[_|Positions],Moves):-
+    list_all_eat_moves(Board,Positions,Moves).
+
+list_all_moves(_,[],[]):- !.
+list_all_moves(Board,[p(E,X,Y)|Positions],[Move|Moves]):-
+    bagof(M,next_move(Board,E,X,Y,M),Move), !,
+    list_all_moves(Board,Positions,Moves).
+list_all_moves(Board,[_|Positions],Moves):-
+    list_all_moves(Board,Positions,Moves).
+
+list_all_positions(Board,Player,Positions):-
+    bagof(Pos, list_all_positions_aux(Board,Player,Pos), Positions).
+  %  nl, nl, print("List_all_positions"), nl, nl.
+
+list_all_positions_aux(Board,Player,p(E,X,Y)):-
+    member(X,[1,2,3,4,5,6,7,8]),
+    member(Y,[1,2,3,4,5,6,7,8]),
+    pos(Board,X,Y,E),
+    player_piece(Player,E).
+
+
+
+
+
+
+
+
+
 
 
 :-dynamic game_state_player_move/1.
