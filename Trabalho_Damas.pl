@@ -23,6 +23,30 @@ empty_board(
 		l(0, 1, 0, 1, 0, 1, 0, 1),
 		l(1, 0, 1, 0, 1, 0, 1, 0)
 	    )).
+% chain eat
+test_board_1(
+	game_board(
+		l(0, b, 0, 1, 0, 1, 0, 1),
+		l(1, 0, w, 0, 1, 0, 1, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, w, 0, 1, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, w, 0, w, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, 1, 0, 1, 0)
+	    )).
+% simple eat
+test_board_2(
+	game_board(
+		l(0, b, 0, 1, 0, 1, 0, 1),
+		l(1, 0, w, 0, 1, 0, 1, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, 1, 0, 1, 0),
+		l(0, 1, 0, b, 0, b, 0, 1),
+		l(1, 0, 1, 0, w, 0, w, 0),
+		l(0, 1, 0, 1, 0, 1, 0, 1),
+		l(1, 0, 1, 0, 1, 0, 1, 0)
+	    )).
 
 % board_initialize_empty(-Board).
 % Creates a empty board, i.e. initialized with 1 for black space and 0 for white space
@@ -461,22 +485,25 @@ list_available_moves_aux(Board,Positions,Moves):-
 
 % list all eat moves
 list_all_eat_moves(_,[],[]):- !.
-list_all_eat_moves(Board,[p(E,X,Y)|Positions],[Move|Moves]):-
-    next_eat_move(Board,E,X,Y,Move),
-    list_all_eat_moves(Board,Positions,Moves).
+list_all_eat_moves(Board,[p(E,X,Y)|Positions],Moves):-
+    %next_eat_move(Board,E,X,Y,Move),
+    bagof(M,chain_eat(Board,p(E,X,Y),M),Move), !,
+    list_all_eat_moves(Board,Positions,Move2),
+    append(Move,Move2,Move3), % can be removed in order to have a list of possible moves for a piece
+    remove_empty(Move3,Moves).
 list_all_eat_moves(Board,[_|Positions],Moves):-
     list_all_eat_moves(Board,Positions,Moves).
 
 list_all_moves(_,[],[]):- !.
-list_all_moves(Board,[p(E,X,Y)|Positions],[Move|Moves]):-
+list_all_moves(Board,[p(E,X,Y)|Positions],Moves):-
     bagof(M,next_move(Board,E,X,Y,M),Move), !,
-    list_all_moves(Board,Positions,Moves).
+    list_all_moves(Board,Positions,Move2),
+    append(Move,Move2,Moves). % can be removed, and we have a list of moves for each piece.
 list_all_moves(Board,[_|Positions],Moves):-
     list_all_moves(Board,Positions,Moves).
 
 list_all_positions(Board,Player,Positions):-
     bagof(Pos, list_all_positions_aux(Board,Player,Pos), Positions).
-  %  nl, nl, print("List_all_positions"), nl, nl.
 
 list_all_positions_aux(Board,Player,p(E,X,Y)):-
     member(X,[1,2,3,4,5,6,7,8]),
@@ -486,10 +513,18 @@ list_all_positions_aux(Board,Player,p(E,X,Y)):-
 
 
 
+chain_eat(Board,p(E,X,Y),[e(X,Y,X1,Y1,Board2)|Moves]):-
+    next_eat_move(Board,E,X,Y,e(X,Y,X1,Y1,Board2)),
+    pos(Board2,X1,Y1,E1),
+    chain_eat(Board2,p(E1,X1,Y1),Moves).
+chain_eat(Board,p(E,X,Y),[]):-
+    \+next_eat_move(Board,E,X,Y,_).
 
 
-
-
+% [[[asdf,zxcv]],[],[[[]]],[[],qwer]] -> [[asdf,zxcv],qwer]
+remove_empty([],[]):- !.
+remove_empty([[]|L],L1):- !, remove_empty(L,L1).
+remove_empty([X|L],[X|L1]):- remove_empty(L,L1).
 
 
 
@@ -517,3 +552,18 @@ player_direction(black,1).
 
 
 %next_move(Board,w,X,Y,New_Board)
+
+
+%% Moves = [
+%%     [
+%% 	[ option 1
+%% 	    e(2,1,4,3,game_board(l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,b,0,1,0,1),l(1,0,1,0,w,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,w,0,w,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0))),
+%% 	    e(4,3,6,5,game_board(l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,b,0,1),l(1,0,1,0,w,0,w,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0))),
+%% 	    e(6,5,4,7,game_board(l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,w,0),l(0,1,0,b,0,1,0,1),l(1,0,1,0,1,0,1,0)))
+%% 	],
+%% 	[ option 2
+%% 	 e(2,1,4,3,game_board(l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,b,0,1,0,1),l(1,0,1,0,w,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,w,0,w,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0))),
+%% 	 e(4,3,6,5,game_board(l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,b,0,1),l(1,0,1,0,w,0,w,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0))),
+%% 	 e(6,5,8,7,game_board(l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,1,0,1,0),l(0,1,0,1,0,1,0,1),l(1,0,1,0,w,0,1,0),l(0,1,0,1,0,1,0,b),l(1,0,1,0,1,0,1,0)))]
+%% ]
+%% ]
