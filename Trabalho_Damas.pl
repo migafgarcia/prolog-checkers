@@ -48,6 +48,19 @@ test_board_2(
 			l(1, 0, 1, 0, 1, 0, 1, 0)
 		       )).
 
+
+test_board_3(
+	     game_board(
+			l(0, 1, 0, 1, 0, 1, 0, 1),
+			l(1, 0, 1, 0, 1, 0, 1, 0),
+			l(0, 1, 0, 1, 0, 1, 0, 1),
+			l(1, 0, 1, 0, 1, 0, 1, 0),
+			l(0, 1, 0, w, 0, 1, 0, 1),
+			l(1, 0, 1, 0, 1, 0, 1, 0),
+			l(0, 1, 0, 1, 0, 1, 0, 1),
+			l(1, 0, 1, 0, 1, 0, 1, 0)
+		       )).
+
 % board_initialize_empty(-Board).
 % Creates a empty board, i.e. initialized with 1 for black space and 0 for white space
 board_initialize_empty(game_board(A,B,C,D,E,F,G,H)):-
@@ -575,19 +588,25 @@ minimax(Player, Board, NextMove, Eval, Depth) :-
 	best(OtherPlayer, Moves, NextMove, Eval, NewDepth).
 
 minimax(Player, Board, _, Eval, Depth) :-
-	evaluate_board(Board, Eval, 1).
+	evaluate_board(Board, Eval, 1), !.
 
 
 
 
 best(Player, [Move], Move, Eval, Depth) :-
+	move_board(Move, Board),
 	minimax(Player, Board, _, Eval, Depth), !.
 
 best(Player, [Move|Moves], BestMove, BestEval, Depth) :-
-	move_board(Move, Board),
+	dechain(Move, Move1),
+	move_board(Move1, Board),
 	minimax(Player, Board, NextMove, Eval, Depth),
 	best(Player, Moves, BestMove1, BestEval1, Depth),
-	better_of(Player, Move, Eval, BestMove1, BestEval1, BestMove, BestEval).
+	better_of(Player, Move1, Eval, BestMove1, BestEval1, BestMove, BestEval).
+
+dechain([Move],Move).
+dechain([Move|Moves],Last) :- last(Moves, Last).
+dechain(Move, Move).
 
 
 maximizing(white).
