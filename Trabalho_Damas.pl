@@ -223,13 +223,14 @@ pos(Board, X, Y, E):-
 	arg(X,T,E).
 
 % replace(+Board,+X,+Y,+Element,-New_Board).
+% AUXILIARY
 % Places or replaces the element at position (X,Y) with Element and returns a New_Board. 
 replace(Board, X, Y, Element, New_Board):-
 	functor(New_Board,game_board,8),
 	replace_in_board(Board,X,Y,Element,New_Board,1).
 
 % replace_in_board(+Board,+X,+Y,+Element,+New_Board,+Iterator).
-% Auxiliary Function
+% AUXILIARY
 % Receives an uninitialized New_Board and replaces element at position (X,Y) from Board
 % with Element in the New_Board. All the other positions are copies of Board.
 replace_in_board(_,_,_,_,_,Iterator):- Iterator > 8, !.
@@ -248,7 +249,7 @@ replace_in_board(Board, X, Y, Element, New_Board, Iterator):-
 	replace_in_board(Board, X, Y, Element, New_Board, Iterator_Next).
 
 % replace_in_line(+Line,+X,+Element,+New_Line,+Iterator).
-% Auxiliary Funciton
+% AUXILIARY
 % Replaces the element at index X with Element. All other positions are copies from Line.
 replace_in_line(_,_,_,_, Iterator):- Iterator > 8, !.
 replace_in_line(Line, X, Element, New_Line, Iterator):-
@@ -262,19 +263,24 @@ replace_in_line(Line, X, Element, New_Line, Iterator):-
 	Iterator_Next is Iterator + 1,
 	replace_in_line(Line, X, Element, New_Line, Iterator_Next).
 
+% remove_from_board(+Board,+X,+Y,-New_Board).
+% AUXILIARY
+% Removes the piece at position (X,Y) from the board.
 remove_from_board(Board,X,Y,New_Board):-
 	empty_board(Empty_Board),
 	pos(Empty_Board,X,Y,Place),
 	replace(Board,X,Y,Place,New_Board).
 
+% move(+Board,+Xi,+Yi,+Xf,+Yf,-New_Board).
+% Move piece (Xi,Yi) to (Xf,Yf)
 move(Board,Xi,Yi,Xf,Yf,New_Board):-
 	pos(Board,Xi,Yi,Piece),
 	remove_from_board(Board,Xi,Yi,Temp_Board),
 	promote(Yf,Piece,Piece2),
 	replace(Temp_Board,Xf,Yf,Piece2,New_Board).
 
-promote(1,w,wq).
-promote(8,b,bq).
+promote(1,w,wq):- !.
+promote(8,b,bq):- !.
 promote(_,Piece,Piece).
 
 is_occupied(Board,X,Y):-
