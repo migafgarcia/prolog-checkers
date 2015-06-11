@@ -327,21 +327,6 @@ next_eat_move(Board,w,X,Y,e(X,Y,X2,Y2,New_Board)):-
 	move(Board,X,Y,X2,Y2,Temp_Board),
 	remove_from_board(Temp_Board,X1,Y1,New_Board).
 
-% try to move to the left
-next_move(Board,w,X,Y,m(X,Y,X1,Y1,New_Board)):-
-	X > 1, Y > 1,
-	X1 is X - 1, Y1 is Y - 1,
-	\+is_occupied(Board,X1,Y1),
-	move(Board,X,Y,X1,Y1,New_Board).
-
-% try to move to the right
-next_move(Board,w,X,Y,m(X,Y,X1,Y1,New_Board)):-
-	X < 8, Y > 1,
-	X1 is X + 1, Y1 is Y - 1,
-	\+is_occupied(Board,X1,Y1),
-	move(Board,X,Y,X1,Y1,New_Board).
-
-
 % try to eat to the left
 next_eat_move(Board,b,X,Y,e(X,Y,X2,Y2,New_Board)):-
 	X > 2, Y < 7,
@@ -361,20 +346,6 @@ next_eat_move(Board,b,X,Y,e(X,Y,X2,Y2,New_Board)):-
 	\+is_occupied(Board,X2,Y2),
 	move(Board,X,Y,X2,Y2,Temp_Board),
 	remove_from_board(Temp_Board,X1,Y1,New_Board).
-
-% try to move to the left
-next_move(Board,b,X,Y,m(X,Y,X1,Y1,New_Board)):-
-	X > 1, Y < 8, 
-	X1 is X - 1, Y1 is Y + 1,
-	\+is_occupied(Board,X1,Y1),
-	move(Board,X,Y,X1,Y1,New_Board).
-
-% try to move to the right
-next_move(Board,b,X,Y,m(X,Y,X1,Y1,New_Board)):-
-	X < 8, Y < 8,
-	X1 is X + 1, Y1 is Y + 1,
-	\+is_occupied(Board,X1,Y1),
-	move(Board,X,Y,X1,Y1,New_Board).
 
 % try to eat forward left
 next_eat_move(Board,wq,X,Y,e(X,Y,X2,Y2,New_Board)):-
@@ -456,15 +427,42 @@ next_eat_move(Board,bq,X,Y,e(X,Y,X2,Y2,New_Board)):-
 	move(Board,X,Y,X2,Y2,Temp_Board),
 	remove_from_board(Temp_Board,X1,Y1,New_Board).
 
-queen(wq).
-queen(bq).
+
+
+% try to move to the left
+next_move(Board,w,X,Y,m(X,Y,X1,Y1,New_Board)):-
+	X > 1, Y > 1,
+	X1 is X - 1, Y1 is Y - 1,
+	\+is_occupied(Board,X1,Y1),
+	move(Board,X,Y,X1,Y1,New_Board).
+
+% try to move to the right
+next_move(Board,w,X,Y,m(X,Y,X1,Y1,New_Board)):-
+	X < 8, Y > 1,
+	X1 is X + 1, Y1 is Y - 1,
+	\+is_occupied(Board,X1,Y1),
+	move(Board,X,Y,X1,Y1,New_Board).
+
+% try to move to the left
+next_move(Board,b,X,Y,m(X,Y,X1,Y1,New_Board)):-
+	X > 1, Y < 8, 
+	X1 is X - 1, Y1 is Y + 1,
+	\+is_occupied(Board,X1,Y1),
+	move(Board,X,Y,X1,Y1,New_Board).
+
+% try to move to the right
+next_move(Board,b,X,Y,m(X,Y,X1,Y1,New_Board)):-
+	X < 8, Y < 8,
+	X1 is X + 1, Y1 is Y + 1,
+	\+is_occupied(Board,X1,Y1),
+	move(Board,X,Y,X1,Y1,New_Board).
 
 % move up left
 next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
 	queen(Piece),
 	X > 1, Y > 1,
 	X1 is X - 1, Y1 is Y - 1,
-	\+is_occupied(Board,N1,Y1),
+	\+is_occupied(Board,X1,Y1),
 	move(Board,X,Y,X1,Y1,New_Board).
 
 % move up right
@@ -472,7 +470,7 @@ next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
 	queen(Piece),
 	X < 8, Y > 1,
 	X1 is X + 1, Y1 is Y - 1,
-	\+is_occupied(Board,N1,Y1),
+	\+is_occupied(Board,X1,Y1),
 	move(Board,X,Y,X1,Y1,New_Board).
 
 % move down left
@@ -480,7 +478,7 @@ next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
 	queen(Piece),
 	X > 1, Y < 8,
 	X1 is X - 1, Y1 is Y + 1,
-	\+is_occupied(Board,N1,Y1),
+	\+is_occupied(Board,X1,Y1),
 	move(Board,X,Y,X1,Y1,New_Board).
 
 % move down right
@@ -488,8 +486,11 @@ next_move(Board,Piece,X,Y,m(X,Y,X1,Y1,New_Board)):-
 	queen(Piece),
 	X < 8, Y < 8,
 	X1 is X + 1, Y1 is Y + 1,
-	\+is_occupied(Board,N1,Y1),
+	\+is_occupied(Board,X1,Y1),
 	move(Board,X,Y,X1,Y1,New_Board).
+
+queen(wq).
+queen(bq).
 
 
 list_available_moves(Board,Player,Moves):-
