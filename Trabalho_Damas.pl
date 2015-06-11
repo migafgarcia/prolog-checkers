@@ -561,6 +561,9 @@ player_piece(black,bq).
 player_direction(white,-1).
 player_direction(black,1).
 
+
+
+
 % evaluate_board(+Board, 0, 1)
 evaluate_board(Board, 0, Iterator) :-  Iterator > 8, !.
 
@@ -615,7 +618,7 @@ minimizing(black).
 
 move_board(m(_,_,_,_, Board), Board).
 move_board(e(_,_,_,_, Board), Board).
-
+move_board([e(_,_,_,_, Board)], Board).
 better_of(Player, Move1, Eval1, Move2, Eval2, Move1, Eval1) :-
 	maximizing(Player),
 	Eval1 >= Eval2, !.
@@ -679,3 +682,104 @@ new_bounds(Player, Alpha, Beta, Eval, Eval, Beta) :-
 
 new_bounds(Player, Alpha, Beta, Eval, Alpha, Eval) :-
 	maximizing(Player), Eval < Beta, !.
+
+code_to_number(Code, Number) :-
+	Code >= 49,
+	Code =< 56,
+	Number is Code - 48.
+
+print_possible_moves(_, []) :- !,  nl.
+
+print_possible_moves(Num, [m(X1,Y1,X2,Y2,_)|Moves]) :- !, 
+	write(Num), write(': ('), write(X1), write(','), write(Y1),
+	write(') -> ('),
+	write(X2), write(','), write(Y2), write(')'), nl,
+	NextNum is Num + 1,
+	print_possible_moves(NextNum, Moves).
+
+
+print_possible_moves(Num, [Chain|Moves]) :- !, 
+	write(Num), write(': '),
+	print_chain_moves(Chain),
+	NextNum is Num + 1,
+	print_possible_moves(NextNum, Moves).
+
+print_chain_moves([e(X1,Y1,X2,Y2,_)]) :- !, 
+	write('('), write(X1), write(','), write(Y1),
+	write(') -> ('),
+	write(X2), write(','), write(Y2), write(')'), nl.
+
+print_chain_moves([e(X1,Y1,X2,Y2,_)|Chain]) :- !, 
+	write('('), write(X1), write(','), write(Y1),
+	write(') -> ('),
+	write(X2), write(','), write(Y2), write(') -> '),
+	print_chain_moves(Chain).
+
+print_move(m(X1, Y1, X2, Y2, _)) :- !, 
+	write('('), write(X1), write(','), write(Y1),
+	write(') -> ('),
+	write(X2), write(','), write(Y2), write(')'), nl.
+print_move(e(X1, Y1, X2, Y2, _)) :- !, 
+	write('('), write(X1), write(','), write(Y1),
+	write(') -> ('),
+	write(X2), write(','), write(Y2), write(')'), nl.
+
+% print_possible_moves(_, [], []) :- !,  nl.
+
+% print_possible_moves(Num, [m(X1,Y1,X2,Y2,Board)|Moves], [option(Num, m(X1,Y1,X2,Y2,Board))|Options]) :- !, 
+% 	write(Num), write(': ('), write(X1), write(','), write(Y1),
+% 	write(') -> ('),
+% 	write(X2), write(','), write(Y2), write(')'), nl,
+% 	NextNum is Num + 1,
+% 	print_possible_moves(NextNum, Moves, Options).
+
+
+% print_possible_moves(Num, [Chain|Moves], [option(Num, Chain)|Options]) :- !, 
+% 	write(Num), write(': '),
+% 	print_chain_moves(Chain),
+% 	NextNum is Num + 1,
+% 	print_possible_moves(NextNum, Moves, Options).
+
+% print_chain_moves([e(X1,Y1,X2,Y2,_)]) :- !, 
+% 	write('('), write(X1), write(','), write(Y1),
+% 	write(') -> ('),
+% 	write(X2), write(','), write(Y2), write(')'), nl.
+
+% print_chain_moves([e(X1,Y1,X2,Y2,_)|Chain]) :- !, 
+% 	write('('), write(X1), write(','), write(Y1),
+% 	write(') -> ('),
+% 	write(X2), write(','), write(Y2), write(') -> '),
+% 	print_chain_moves(Chain).
+
+main :-
+	abolish(current/2),
+	board_initialize_game(Board),
+	assert(current(white, Board)),
+	play.
+
+play :-
+	current(Player, Board),
+	board_print(Board),
+	make_play(Player, Board).
+
+make_play(white, Board) :-
+	write('White (computer) turn to play.'), nl,
+	alphabeta(black, -1000, 1000, Board, NextMove, _, 0),    % Run alpha beta for current board
+	print_move(NextMove),                                    
+	move_board(NextMove, NewBoard),
+	abolish(current/2),                                      % Replaces current in DB
+	assert(current(black, NewBoard)),                        % and switches players
+	play.
+	
+make_play(black, Board) :-
+	write('Black (human) turn to play.'), nl,
+	list_available_moves(Board, black, Moves),               
+	print_possible_moves(1 , Moves),                         % Prints the options the player has
+	get_code(Input), get_code(_),                            % Eats a number and a /n
+	code_to_number(Input, Option),                           % Transforms code into number
+	nth1(Option, Moves, Move),                               % Gets the selected options from the list of moves
+	move_board(Move, NewBoard),
+	abolish(current/2),                                      % Replaces current in DB                              
+	assert(current(white, NewBoard)),                        % and swicthes players
+	play.
+	
