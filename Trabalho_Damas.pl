@@ -582,11 +582,11 @@ evaluate_line(Line, Eval, Iterator) :-
 	Eval is RemainingEval + PieceValue.
 
 minimax(Player, Board, NextMove, Eval, Depth) :-
-	Depth < 4,
+	Depth < 5,
 	NewDepth is Depth + 1,
-	next_player(Player, OtherPlayer), !,
+	next_player(Player, OtherPlayer),
 	list_available_moves(Board, OtherPlayer, Moves),
-	best(OtherPlayer, Moves, NextMove, Eval, NewDepth).
+	best(OtherPlayer, Moves, NextMove, Eval, NewDepth), !.
 
 minimax(Player, Board, _, Eval, Depth) :-
 	evaluate_board(Board, Eval, 1), !.
