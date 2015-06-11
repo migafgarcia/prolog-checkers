@@ -636,3 +636,45 @@ piece_value(w, 1).
 piece_value(b, -1).
 piece_value(wq, 2).
 piece_value(bq, -2).
+
+
+
+alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
+	Depth < 30,
+	NewDepth is Depth + 1,
+	next_player(Player, OtherPlayer),
+	list_available_moves(Board, OtherPlayer, Moves),
+	bounded_best(OtherPlayer, Alpha, Beta, Moves, NextMove, Eval, NewDepth), !.
+
+alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
+	evaluate_board(Board, Eval, 1), !.
+
+% bounded_best(Player, Alpha, Beta, [Move], Move, Eval, Depth) :-
+% 	move_board(Move, Board),
+% 	minimax(Player, Board, _, Eval, Depth), !.
+
+bounded_best(Player, Alpha, Beta, [Move|Moves], BestMove, BestEval, Depth) :-
+	dechain(Move, Move1),
+	move_board(Move1, Board),
+	alphabeta(Player, Alpha, Beta, Board, _, Eval, Depth),
+	good_enough(Player, Moves, Alpha, Beta, Move1, Eval, BestMove, BestEval, Depth).
+
+good_enough(Player, [], _, _, Move, Eval, Move, Eval, Depth) :- !.
+
+good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
+	minimizing(Player), Eval > Beta, !.
+
+good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
+	maximizing(Player), Eval < Alpha, !.
+
+good_enough(Player, Moves, Alpha, Beta, Move, Eval, BestMove, BestEval, Depth) :-
+	new_bounds(Player, Alpha, Beta, Eval, NewAlpha, NewBeta),
+	bounded_best(Player, NewAlpha, NewBeta, Moves, Move1, Eval1, Depth),
+	better_of(Player, Move, Eval, Move1, Eval1, BestMove, BestEval).
+
+new_bounds(Player, Alpha, Beta, Eval, Eval, Beta) :-
+	minimizing(Player), Eval > Alpha, !.
+
+
+new_bounds(Player, Alpha, Beta, Eval, Alpha, Eval) :-
+	maximizing(Player), Eval < Beta, !.
