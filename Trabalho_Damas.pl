@@ -663,10 +663,10 @@ bounded_best(Player, Alpha, Beta, [Move|Moves], BestMove, BestEval, Depth) :-
 good_enough(Player, [], _, _, Move, Eval, Move, Eval, Depth) :- !.
 
 good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
-	minimizing(Player), Eval > Beta, !.
+	minimizing(Player), Eval > Alpha, !.
 
 good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
-	maximizing(Player), Eval < Alpha, !.
+	maximizing(Player), Eval < Beta, !.
 
 good_enough(Player, Moves, Alpha, Beta, Move, Eval, BestMove, BestEval, Depth) :-
 	new_bounds(Player, Alpha, Beta, Eval, NewAlpha, NewBeta),
