@@ -203,27 +203,27 @@ board_print_line_element(Line,Index):-
 board_print_line_element(Line,Index):-
 	arg(Index,Line,E),
 	E == w, !,
-	format('~c',[9920]),	% circle outline
+	format('~c',[9920]),	% unicode white checkers piece
 	tab(2).
 board_print_line_element(Line,Index):-
 	arg(Index,Line,E),
 	E == b, !,
-	format('~c',[9922]),	% filled circle
+	format('~c',[9922]),	% unicode black checkers piece
 	tab(2).
 board_print_line_element(Line,Index):-
 	arg(Index,Line,E),
 	E == wq, !,
-	format('~c',[9921]),	% circle outline
+	format('~c',[9921]),	% unicode white king checkers piece
 	tab(2).
 board_print_line_element(Line,Index):-
 	arg(Index,Line,E),
 	E == bq, !,
-	format('~c',[9923]),	% filled circle
+	format('~c',[9923]),	% unicode black king checkers piece
 	tab(2).
 
 board_print_line_element(Line,Index):-
 	arg(Index,Line,E),
-	print(E),		% should never reach this state
+	print(E),		% shouldn't reach this state
 	tab(2).
 
 
@@ -292,20 +292,33 @@ move(Board,Xi,Yi,Xf,Yf,New_Board):-
 	promote(Yf,Piece,Piece2),
 	replace(Temp_Board,Xf,Yf,Piece2,New_Board).
 
+% promote(+Pos,+Piece,-Promoted).
+% AUXILIARY
+% Promotes Piece to a queen if it has reached the end of the board, return Piece otherwise.
 promote(1,w,wq):- !.
 promote(8,b,bq):- !.
 promote(_,Piece,Piece).
 
+% is_occupied(+Board,+X,+Y).
+% AUXILIARY
+% Succeeds if the position (X,Y) is empty, fails otherwise.
 is_occupied(Board,X,Y):-
 	pos(Board,X,Y,Element),
 	\+number(Element).
 
+% is_enemy(+Board,+X,+Y,+Player).
+% AUXILIARY
+% Succeeds if the piece at position (X,Y) is from Player's adversary, fails if it is empty or
+% the piece belongs to Player.
 is_enemy(Board,X,Y,Player):-
 	pos(Board,X,Y,Piece),
 	next_player(Player,N),
 	player_piece(N,Piece), !.
 
 
+% next_eat_move(+Board,+Piece,+Xi,+Yi,-e(Xi,Yi,Xf,Yf,New_Board)).
+% AUXILIARY
+% Makes a single eat, if possible. For multi-eats: chain_eat
 
 % try to eat to the left
 next_eat_move(Board,w,X,Y,e(X,Y,X2,Y2,New_Board)):-
@@ -428,6 +441,9 @@ next_eat_move(Board,bq,X,Y,e(X,Y,X2,Y2,New_Board)):-
 	remove_from_board(Temp_Board,X1,Y1,New_Board).
 
 
+% next_move(+Board,+Piece,+Xi,+Yi,-m(Xi,Yi,Xf,Yf,New_Board)).
+% AUXILIARY
+% Makes a move, if possible.
 
 % try to move to the left
 next_move(Board,w,X,Y,m(X,Y,X1,Y1,New_Board)):-
@@ -493,10 +509,16 @@ queen(wq).
 queen(bq).
 
 
+% list_available_moves(+Board,+Player,-Moves).
+% Returns a list with all the available plays to Player.
+% It returns either the available eats or if none exists, the posible moves.
 list_available_moves(Board,Player,Moves):-
 	list_all_positions(Board,Player,Positions),
 	list_available_moves_aux(Board,Positions,Moves).
 
+% list_available_moves_aux(+Board,+Positions,-Moves).
+% AUXILIARY
+% Collects either the available eats or the available moves.
 list_available_moves_aux(Board,Positions,Moves):-
 	list_all_eat_moves(Board,Positions,Moves),
 	Moves \= [], !.
@@ -506,7 +528,7 @@ list_available_moves_aux(Board,Positions,Moves):-
 % list all eat moves
 list_all_eat_moves(_,[],[]):- !.
 list_all_eat_moves(Board,[p(E,X,Y)|Positions],Moves):-
-	bagof(M,chain_eat(Board,p(E,X,Y),M),Move), !, %next_eat_move(Board,E,X,Y,Move),
+	bagof(M,chain_eat(Board,p(E,X,Y),M),Move), !,
 	list_all_eat_moves(Board,Positions,Move2),
 	append(Move,Move2,Move3), % can be removed in order to have a list of possible moves for a piece
 	remove_empty(Move3,Moves).
