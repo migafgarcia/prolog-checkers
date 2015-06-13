@@ -579,10 +579,6 @@ remove_empty([X|L],[X|L1]):- remove_empty(L,L1).
 
 
 
-
-:-dynamic game_state_player_move/1.
-game_state_player_move(black).
-
 next_player(white,black).
 next_player(black,white).
 
@@ -590,10 +586,6 @@ player_piece(white,w).
 player_piece(white,wq).
 player_piece(black,b).
 player_piece(black,bq).
-
-player_direction(white,-1).
-player_direction(black,1).
-
 
 
 
@@ -651,7 +643,7 @@ minimizing(black).
 
 move_board(m(_,_,_,_, Board), Board).
 move_board(e(_,_,_,_, Board), Board).
-move_board([e(_,_,_,_, Board)], Board).
+%move_board([e(_,_,_,_, Board)], Board).
 better_of(Player, Move1, Eval1, Move2, Eval2, Move1, Eval1) :-
 	maximizing(Player),
 	Eval1 >= Eval2, !.
@@ -811,7 +803,8 @@ make_play(black, Board) :-
 	get_code(Input), get_code(_),                            % Eats a number and a /n
 	code_to_number(Input, Option),                           % Transforms code into number
 	nth1(Option, Moves, Move),                               % Gets the selected options from the list of moves
-	move_board(Move, NewBoard),
+	dechain(Move,Move1),
+	move_board(Move1, NewBoard),
 	abolish(current/2),                                      % Replaces current in DB                              
 	assert(current(white, NewBoard)),                        % and swicthes players
 	play.
