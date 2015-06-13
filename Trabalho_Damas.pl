@@ -525,7 +525,10 @@ list_available_moves_aux(Board,Positions,Moves):-
 list_available_moves_aux(Board,Positions,Moves):-
 	list_all_moves(Board,Positions,Moves).
 
-% list all eat moves
+
+% list_all_eat_moves(+Board,+Positions,-Moves)
+% AUXILIAR
+% Returns a list of lists of single/multi eats possible with the pieces in Positions.
 list_all_eat_moves(_,[],[]):- !.
 list_all_eat_moves(Board,[p(E,X,Y)|Positions],Moves):-
 	bagof(M,chain_eat(Board,p(E,X,Y),M),Move), !,
@@ -535,6 +538,9 @@ list_all_eat_moves(Board,[p(E,X,Y)|Positions],Moves):-
 list_all_eat_moves(Board,[_|Positions],Moves):-
 	list_all_eat_moves(Board,Positions,Moves).
 
+% list_all_moves(+Board,+Positions,-Moves)
+% AUXILIAR
+% Returns a list with the possible moves for pieces in Positions
 list_all_moves(_,[],[]):- !.
 list_all_moves(Board,[p(E,X,Y)|Positions],Moves):-
 	bagof(M,next_move(Board,E,X,Y,M),Move), !,
@@ -543,6 +549,9 @@ list_all_moves(Board,[p(E,X,Y)|Positions],Moves):-
 list_all_moves(Board,[_|Positions],Moves):-
 	list_all_moves(Board,Positions,Moves).
 
+% list_all_positions(+Board,+Player,-Positions)
+% AUXILIAR
+% Returns a list with functors p(Piece,X,Y) of all the pieces of Player.
 list_all_positions(Board,Player,Positions):-
 	bagof(Pos, list_all_positions_aux(Board,Player,Pos), Positions).
 
@@ -553,7 +562,9 @@ list_all_positions_aux(Board,Player,p(E,X,Y)):-
 	player_piece(Player,E).
 
 
-
+% chain_eat(+Board,+Position,-Moves)
+% Returns a list with a multi eat starting at Position.
+% Backtrack to obtain all posibilities starting at Position.
 chain_eat(Board,p(E,X,Y),[e(X,Y,X1,Y1,Board2)|Moves]):-
 	next_eat_move(Board,E,X,Y,e(X,Y,X1,Y1,Board2)),
 	pos(Board2,X1,Y1,E1),
