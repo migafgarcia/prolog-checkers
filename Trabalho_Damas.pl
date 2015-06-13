@@ -588,6 +588,22 @@ player_piece(black,b).
 player_piece(black,bq).
 
 
+% board_weight(+Piece,+X,+Y,-W).
+board_weight(w,_,1,5).
+board_weight(w,_,2,3).
+board_weight(w,_,3,2).
+board_weight(w,_,6,2).
+board_weight(w,_,7,3).
+board_weight(w,_,8,5).
+board_weight(w,_,_,1).
+board_weight(b,_,1,5).
+board_weight(b,_,2,3).
+board_weight(b,_,3,2).
+board_weight(b,_,6,2).
+board_weight(b,_,7,3).
+board_weight(b,_,8,5).
+board_weight(b,_,_,1).
+board_weight(_,_,_,1).
 
 % evaluate_board(+Board, 0, 1)
 evaluate_board(Board, 0, Iterator) :-  Iterator > 8, !.
@@ -605,9 +621,10 @@ evaluate_line(Line, 0, Iterator) :- Iterator > 8, !.
 evaluate_line(Line, Eval, Iterator) :-
 	arg(Iterator, Line, Piece), !,
 	piece_value(Piece, PieceValue),
+	board_weight(Piece,Iterator,Line,W),
 	IteratorNext is Iterator + 1,
 	evaluate_line(Line, RemainingEval, IteratorNext),
-	Eval is RemainingEval + PieceValue.
+	Eval is RemainingEval + PieceValue * W.
 
 minimax(Player, Board, NextMove, Eval, Depth) :-
 	Depth < 5,
@@ -663,8 +680,8 @@ piece_value(1, 0).
 piece_value(0, 0).
 piece_value(w, 1).
 piece_value(b, -1).
-piece_value(wq, 2).
-piece_value(bq, -2).
+piece_value(wq, 5).
+piece_value(bq, -5).
 
 
 
@@ -789,23 +806,40 @@ play :-
 
 make_play(white, Board) :-
 	write('White (computer) turn to play.'), nl,
-	alphabeta(black, -1000, 1000, Board, NextMove, _, 0),    % Run alpha beta for current board
+	alphabeta(black, -1000, 1000, Board, NextMove, Eval, 0),    % Run alpha beta for current board
+	write('Move evaluation: '), write(Eval), nl,
 	print_move(NextMove),                                    
 	move_board(NextMove, NewBoard),
 	abolish(current/2),                                      % Replaces current in DB
 	assert(current(black, NewBoard)),                        % and switches players
 	play.
 	
+%% make_play(black, Board) :-
+%% 	write('Black (human) turn to play.'), nl,
+%% 	list_available_moves(Board, black, Moves),
+%%         write(Moves),nl,
+%% 	print_possible_moves(1 , Moves),                         % Prints the options the player has
+%% 	get_code(Input), get_code(_),                            % Eats a number and a /n
+%% 	code_to_number(Input, Option),                           % Transforms code into number
+%% 	write('Option: '), write(Option), nl,
+%% 	nth1(Option, Moves, Move),                               % Gets the selected options from the list of moves
+%% 	write('Move:'),write(Move),nl,
+%% 	dechain(Move,Move1),
+%% 	write('Move1:'),write(Move1),nl,
+%% 	move_board(Move1, NewBoard),
+%% 	write('black_move_board_succeeded'),nl,
+%% 	abolish(current/2),                                      % Replaces current in DB                              
+%% 	assert(current(white, NewBoard)),                        % and swicthes players
+%% 	play.
+	
 make_play(black, Board) :-
 	write('Black (human) turn to play.'), nl,
-	list_available_moves(Board, black, Moves),               
-	print_possible_moves(1 , Moves),                         % Prints the options the player has
-	get_code(Input), get_code(_),                            % Eats a number and a /n
-	code_to_number(Input, Option),                           % Transforms code into number
-	nth1(Option, Moves, Move),                               % Gets the selected options from the list of moves
+	list_available_moves(Board, black, Moves),
+	print_possible_moves(1 , Moves),        % Prints the options the player has
+ 	read(Option),                           % Transforms code into number
+	nth1(Option, Moves, Move),              % Gets the selected options from the list of moves
 	dechain(Move,Move1),
 	move_board(Move1, NewBoard),
-	abolish(current/2),                                      % Replaces current in DB                              
-	assert(current(white, NewBoard)),                        % and swicthes players
+	abolish(current/2),                     % Replaces current in DB                              
+	assert(current(white, NewBoard)),       % and swicthes players
 	play.
-	
