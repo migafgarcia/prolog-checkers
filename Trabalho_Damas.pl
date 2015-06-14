@@ -804,10 +804,10 @@ new_bounds(Player, Alpha, Beta, Eval, Eval, Beta) :-
 new_bounds(Player, Alpha, Beta, Eval, Alpha, Eval) :-
 	maximizing(Player), Eval < Beta, !.
 
-code_to_number(Code, Number) :-
-	Code >= 49,
-	Code =< 56,
-	Number is Code - 48.
+%% code_to_number(Code, Number) :-
+%% 	Code >= 49,
+%% 	Code =< 56,
+%% 	Number is Code - 48.
 
 print_possible_moves(_, []) :- !,  nl.
 
@@ -876,6 +876,8 @@ main :-
 	abolish(current/2),
 	board_initialize_game(Board),
 	assert(current(white, Board)),
+	write('Prolog checkers'), nl,
+	write('To play select one of the options available:\n3. for example (the dot in the end is important!)\n'),
 	play.
 
 %% play :-
