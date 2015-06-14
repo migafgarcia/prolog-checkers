@@ -61,6 +61,19 @@ test_board_3(
 			l(1, 0, 1, 0, 1, 0, 1, 0)
 		       )).
 
+test_board_4(
+	game_board(
+		       l(0, b, 0, b, 0, b, 0, 1),
+		       l(w, 0, 1, 0, 1, 0, b, 0),
+		       l(0, 1, 0, 1, 0, 1, 0, w),
+		       l(1, 0, 1, 0, 1, 0, 1, 0),
+		       l(0, 1, 0, 1, 0, 1, 0, 1),
+		       l(1, 0, 1, 0, 1, 0, 1, 0),
+		       l(0, 1, 0, 1, 0, 1, 0, 1),
+		       l(1, 0, 1, 0, 1, 0, 1, 0)
+		      )).
+	
+
 % board_initialize_empty(-Board).
 % Creates a empty board, i.e. initialized with 1 for black space and 0 for white space
 board_initialize_empty(game_board(A,B,C,D,E,F,G,H)):-
@@ -514,7 +527,8 @@ queen(bq).
 % It returns either the available eats or if none exists, the posible moves.
 list_available_moves(Board,Player,Moves):-
 	list_all_positions(Board,Player,Positions),
-	list_available_moves_aux(Board,Positions,Moves).
+	list_available_moves_aux(Board,Positions,Moves), 
+	Moves \= [].
 
 % list_available_moves_aux(+Board,+Positions,-Moves).
 % AUXILIARY
@@ -799,20 +813,20 @@ main :-
 	assert(current(white, Board)),
 	play.
 
-play :-
-	current(Player, Board),
-	board_print(Board),
-	make_play(Player, Board).
+%% play :-
+%% 	current(Player, Board),
+%% 	board_print(Board),
+%% 	make_play(Player, Board).
 
-make_play(white, Board) :-
-	write('White (computer) turn to play.'), nl,
-	alphabeta(black, -1000, 1000, Board, NextMove, Eval, 0),    % Run alpha beta for current board
-	write('Move evaluation: '), write(Eval), nl,
-	print_move(NextMove),                                    
-	move_board(NextMove, NewBoard),
-	abolish(current/2),                                      % Replaces current in DB
-	assert(current(black, NewBoard)),                        % and switches players
-	play.
+%% make_play(white, Board) :-
+%% 	write('White (computer) turn to play.'), nl,
+%% 	alphabeta(black, -1000, 1000, Board, NextMove, Eval, 0),    % Run alpha beta for current board
+%% 	write('Move evaluation: '), write(Eval), nl,
+%% 	print_move(NextMove),                                    
+%% 	move_board(NextMove, NewBoard),
+%% 	abolish(current/2),                                      % Replaces current in DB
+%% 	assert(current(black, NewBoard)),                        % and switches players
+%% 	play.
 	
 %% make_play(black, Board) :-
 %% 	write('Black (human) turn to play.'), nl,
@@ -832,14 +846,52 @@ make_play(white, Board) :-
 %% 	assert(current(white, NewBoard)),                        % and swicthes players
 %% 	play.
 	
-make_play(black, Board) :-
-	write('Black (human) turn to play.'), nl,
-	list_available_moves(Board, black, Moves),
-	print_possible_moves(1 , Moves),        % Prints the options the player has
- 	read(Option),                           % Transforms code into number
-	nth1(Option, Moves, Move),              % Gets the selected options from the list of moves
-	dechain(Move,Move1),
-	move_board(Move1, NewBoard),
-	abolish(current/2),                     % Replaces current in DB                              
-	assert(current(white, NewBoard)),       % and swicthes players
-	play.
+%% make_play(black, Board) :-
+%% 	write('Black (human) turn to play.'), nl,
+%% 	list_available_moves(Board, black, Moves),
+%% 	print_possible_moves(1 , Moves),        % Prints the options the player has
+%%  	read(Option),                           % Transforms code into number
+%% 	nth1(Option, Moves, Move),              % Gets the selected options from the list of moves
+%% 	dechain(Move,Move1),
+%% 	move_board(Move1, NewBoard),
+%% 	abolish(current/2),                     % Replaces current in DB
+%% 	assert(current(white, NewBoard)),       % and swicthes players
+%% 	play.
+
+play:-
+    current(Player, Board),
+    board_print(Board),
+    make_play(Player, Board).
+
+make_play(white, Board) :-
+    alphabeta(black, -1000, 1000, Board, NextMove, Eval, 0),    % Run alpha beta for current board
+    nonvar(NextMove), !,
+    write('White (computer) turn to play.'), nl,
+    write('Move evaluation: '), write(Eval), nl,
+    print_move(NextMove),                                    
+    move_board(NextMove, NewBoard),
+    abolish(current/2),                                      % Replaces current in DB
+    assert(current(black, NewBoard)),                        % and switches players
+    play.
+make_play(white, Board):-
+    list_available_moves(Board, black, _), !,
+    write('Black (human) wins the game.'),nl.
+make_play(white,_):-
+    write('Draw.'),nl.
+
+make_play(black,Board) :-
+    list_available_moves(Board, black, Moves), !,
+    write('Black (human) turn to play.'), nl,
+    print_possible_moves(1, Moves),
+    read(Option),
+    nth1(Option, Moves, Move),
+    dechain(Move,Move1),
+    move_board(Move1,NewBoard),
+    abolish(current/2),
+    assert(current(white,NewBoard)),
+    play.
+make_play(black,Board) :-
+    list_available_moves(Board, white, _), !,
+    write('White (computer) wins the game.'),nl.
+make_play(black,_):-
+    write('Draw.'), nl.
