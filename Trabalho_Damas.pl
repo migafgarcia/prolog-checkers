@@ -72,7 +72,19 @@ test_board_4(
 		       l(0, 1, 0, 1, 0, 1, 0, 1),
 		       l(1, 0, 1, 0, 1, 0, 1, 0)
 		      )).
-	
+test_board_5(
+	    game_board(
+		       l(0, 1, 0, 1, 0, 1, 0, 1),
+		       l(wq, 0, 1, 0, 1, 0, 1, 0),
+		       l(0, bq, 0, 1, 0, 1, 0, 1),
+		       l(1, 0, 1, 0, 1, 0, 1, 0),
+		       l(0, 1, 0, 1, 0, 1, 0, 1),
+		       l(1, 0, 1, 0, 1, 0, 1, 0),
+		       l(0, 1, 0, 1, 0, 1, 0, 1),
+		       l(1, 0, 1, 0, 1, 0, 1, 0)
+		      )).	
+
+
 
 % board_initialize_empty(-Board).
 % Creates a empty board, i.e. initialized with 1 for black space and 0 for white space
@@ -619,6 +631,13 @@ board_weight(b,_,8,5).
 board_weight(b,_,_,1).
 board_weight(_,_,_,1).
 
+evaluate_board(Board, 200, _):-
+    \+list_available_moves(Board,black,_),
+    list_available_moves(Board,white,_), !.
+evaluate_board(Board, -200, _):-
+    \+list_available_moves(Board,white,_),
+    list_available_moves(Board,black,_), !.
+
 evaluate_board(Board, 0, Iterator) :-  Iterator > 8, !.
 
 evaluate_board(Board, Eval, Iterator) :- 
@@ -950,8 +969,9 @@ make_play(black,Board) :-
     list_available_moves(Board, black, Moves), !,
     write('Black (human) turn to play.'), nl,
     print_possible_moves(1, Moves),
+    repeat, % Keep asking the user for a valid option
     read(Option),
-    nth1(Option, Moves, Move),
+    nth1(Option, Moves, Move), !, % valid option selected, fails are interestingagain :/
     dechain(Move,Move1),
     move_board(Move1,NewBoard),
     abolish(current/2),
