@@ -619,26 +619,49 @@ board_weight(b,_,8,5).
 board_weight(b,_,_,1).
 board_weight(_,_,_,1).
 
-% evaluate_board(+Board, 0, 1)
 evaluate_board(Board, 0, Iterator) :-  Iterator > 8, !.
 
 evaluate_board(Board, Eval, Iterator) :- 
     arg(Iterator, Board, Line), !,
-    evaluate_line(Line, LineEval, 1),
+    evaluate_line(Line, LineEval, Iterator, 1),
     IteratorNext is Iterator + 1,
     evaluate_board(Board, RemainingEval, IteratorNext),
     Eval is LineEval + RemainingEval.
     
 
-evaluate_line(Line, 0, Iterator) :- Iterator > 8, !.
+evaluate_line(Line, 0, _, Column) :- Column > 8, !.
 
-evaluate_line(Line, Eval, Iterator) :-
-	arg(Iterator, Line, Piece), !,
+evaluate_line(Line, Eval, Row, Column) :-
+	arg(Column, Line, Piece), !,
 	piece_value(Piece, PieceValue),
-	board_weight(Piece,Iterator,Line,W),
-	IteratorNext is Iterator + 1,
-	evaluate_line(Line, RemainingEval, IteratorNext),
+	board_weight(Piece,Column,Row,W),
+	IteratorNext is Column + 1,
+	evaluate_line(Line, RemainingEval, Row, IteratorNext),
 	Eval is RemainingEval + PieceValue * W.
+
+
+
+
+% evaluate_board(+Board, 0, 1)
+% evaluate_board(Board, 0, Iterator) :-  Iterator > 8, !.
+
+% evaluate_board(Board, Eval, Iterator) :- 
+%     arg(Iterator, Board, Line), !,
+%     evaluate_line(Line, LineEval, 1),
+%     IteratorNext is Iterator + 1,
+%     evaluate_board(Board, RemainingEval, IteratorNext),
+%     Eval is LineEval + RemainingEval.
+    
+
+% evaluate_line(Line, 0, Iterator) :- Iterator > 8, !.
+
+% evaluate_line(Line, Eval, Iterator) :-
+% 	arg(Iterator, Line, Piece), !,
+% 	piece_value(Piece, PieceValue),
+% 	board_weight(Piece,Iterator,Line,W),
+% 	IteratorNext is Iterator + 1,
+% 	evaluate_line(Line, RemainingEval, IteratorNext),
+% 	Eval is RemainingEval + PieceValue * W.
 
 minimax(Player, Board, NextMove, Eval, Depth) :-
 	Depth < 5,
@@ -699,12 +722,53 @@ piece_value(bq, -5).
 
 
 
+% alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
+% 	Depth < 30,
+% 	NewDepth is Depth + 1,
+% 	next_player(Player, OtherPlayer),
+% 	list_available_moves(Board, OtherPlayer, Moves),
+% 	bounded_best(OtherPlayer, Alpha, Beta, Moves, NextMove, Eval, NewDepth), !.
+
+% alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
+% 	evaluate_board(Board, Eval, 1), !.
+
+% % bounded_best(Player, Alpha, Beta, [Move], Move, Eval, Depth) :-
+% % 	move_board(Move, Board),
+% % 	minimax(Player, Board, _, Eval, Depth), !.
+
+% bounded_best(Player, Alpha, Beta, [Move|Moves], BestMove, BestEval, Depth) :-
+% 	dechain(Move, Move1),
+% 	move_board(Move1, Board),
+% 	alphabeta(Player, Alpha, Beta, Board, _, Eval, Depth),
+% 	good_enough(Player, Moves, Alpha, Beta, Move1, Eval, BestMove, BestEval, Depth).
+
+% good_enough(Player, [], _, _, Move, Eval, Move, Eval, Depth) :- !.
+
+% good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
+% 	minimizing(Player), Eval > Alpha, !.
+
+% good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
+% 	maximizing(Player), Eval < Beta, !.
+
+% good_enough(Player, Moves, Alpha, Beta, Move, Eval, BestMove, BestEval, Depth) :-
+% 	new_bounds(Player, Alpha, Beta, Eval, NewAlpha, NewBeta),
+% 	bounded_best(Player, NewAlpha, NewBeta, Moves, Move1, Eval1, Depth),
+% 	better_of(Player, Move, Eval, Move1, Eval1, BestMove, BestEval).
+
+% new_bounds(Player, Alpha, Beta, Eval, Eval, Beta) :-
+% 	minimizing(Player), Eval > Alpha, !.
+
+
+% new_bounds(Player, Alpha, Beta, Eval, Alpha, Eval) :-
+% 	maximizing(Player), Eval < Beta, !.
+
+
+
 alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
 	Depth < 30,
 	NewDepth is Depth + 1,
-	next_player(Player, OtherPlayer),
-	list_available_moves(Board, OtherPlayer, Moves),
-	bounded_best(OtherPlayer, Alpha, Beta, Moves, NextMove, Eval, NewDepth), !.
+	list_available_moves(Board, Player, Moves),
+	bounded_best(Player, Alpha, Beta, Moves, NextMove, Eval, NewDepth), !.
 
 alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
 	evaluate_board(Board, Eval, 1), !.
@@ -716,7 +780,8 @@ alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
 bounded_best(Player, Alpha, Beta, [Move|Moves], BestMove, BestEval, Depth) :-
 	dechain(Move, Move1),
 	move_board(Move1, Board),
-	alphabeta(Player, Alpha, Beta, Board, _, Eval, Depth),
+	next_player(Player, NextPlayer),
+	alphabeta(NextPlayer, Alpha, Beta, Board, _, Eval, Depth),
 	good_enough(Player, Moves, Alpha, Beta, Move1, Eval, BestMove, BestEval, Depth).
 
 good_enough(Player, [], _, _, Move, Eval, Move, Eval, Depth) :- !.
@@ -864,7 +929,7 @@ play:-
     make_play(Player, Board).
 
 make_play(white, Board) :-
-    alphabeta(black, -1000, 1000, Board, NextMove, Eval, 0),    % Run alpha beta for current board
+    alphabeta(white, -1000, 1000, Board, NextMove, Eval, 0),    % Run alpha beta for current board
     nonvar(NextMove), !,
     write('White (computer) turn to play.'), nl,
     write('Move evaluation: '), write(Eval), nl,
