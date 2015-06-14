@@ -970,7 +970,7 @@ make_play(black,Board) :-
     write('Black (human) turn to play.'), nl,
     print_possible_moves(1, Moves),
     repeat, % Keep asking the user for a valid option
-    read(Option),
+    read(Option), integer(Option),
     nth1(Option, Moves, Move), !, % valid option selected, fails are interestingagain :/
     dechain(Move,Move1),
     move_board(Move1,NewBoard),
