@@ -182,39 +182,6 @@ board_print_line(Line):-
 	board_print_line_element(Line,8),
 	nl.
 
-% board_print_line_element(+Line,+Index).
-% Auxiliary function that prints a element of the board to the console.
-%board_print_line_element(Line,Index):-
-%    arg(Index,Line,E),
-%    print(E),
-%    tab(2).
-
-% board_print_line_element(+Line,+Index).
-% Auxiliary function that prints a element of the board to the console.
-%% board_print_line_element(Line,Index):-
-%%     arg(Index,Line,E),
-%%     E == 1, !,
-%%     %format('~c',[9632]), % black square
-%%     format('~c',[95]), % underscore
-%%     tab(2).
-%% board_print_line_element(Line,Index):-
-%%     arg(Index,Line,E),
-%%     E == 0, !,
-%%     tab(3). % just a white space
-%% board_print_line_element(Line,Index):-
-%%     arg(Index,Line,E),
-%%     E == w, !,
-%%     format('~c',[9675]), % circle outline
-%%     tab(2).
-%% board_print_line_element(Line,Index):-
-%%     arg(Index,Line,E),
-%%     E == b, !,
-%%     format('~c',[9679]), % filled circle
-%%     tab(2).
-%% board_print_line_element(Line,Index):-
-%%     arg(Index,Line,E),
-%%     print(E), % should never reach this state
-%%     tab(2).
 board_print_line_element(Line,Index):-
 	arg(Index,Line,E),
 	E == 1, !,
@@ -659,29 +626,6 @@ evaluate_line(Line, Eval, Row, Column) :-
 	Eval is RemainingEval + PieceValue * W.
 
 
-
-
-% evaluate_board(+Board, 0, 1)
-% evaluate_board(Board, 0, Iterator) :-  Iterator > 8, !.
-
-% evaluate_board(Board, Eval, Iterator) :- 
-%     arg(Iterator, Board, Line), !,
-%     evaluate_line(Line, LineEval, 1),
-%     IteratorNext is Iterator + 1,
-%     evaluate_board(Board, RemainingEval, IteratorNext),
-%     Eval is LineEval + RemainingEval.
-    
-
-% evaluate_line(Line, 0, Iterator) :- Iterator > 8, !.
-
-% evaluate_line(Line, Eval, Iterator) :-
-% 	arg(Iterator, Line, Piece), !,
-% 	piece_value(Piece, PieceValue),
-% 	board_weight(Piece,Iterator,Line,W),
-% 	IteratorNext is Iterator + 1,
-% 	evaluate_line(Line, RemainingEval, IteratorNext),
-% 	Eval is RemainingEval + PieceValue * W.
-
 minimax(Player, Board, NextMove, Eval, Depth) :-
 	Depth < 5,
 	NewDepth is Depth + 1,
@@ -741,48 +685,6 @@ piece_value(bq, -5).
 
 
 
-% alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
-% 	Depth < 30,
-% 	NewDepth is Depth + 1,
-% 	next_player(Player, OtherPlayer),
-% 	list_available_moves(Board, OtherPlayer, Moves),
-% 	bounded_best(OtherPlayer, Alpha, Beta, Moves, NextMove, Eval, NewDepth), !.
-
-% alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
-% 	evaluate_board(Board, Eval, 1), !.
-
-% % bounded_best(Player, Alpha, Beta, [Move], Move, Eval, Depth) :-
-% % 	move_board(Move, Board),
-% % 	minimax(Player, Board, _, Eval, Depth), !.
-
-% bounded_best(Player, Alpha, Beta, [Move|Moves], BestMove, BestEval, Depth) :-
-% 	dechain(Move, Move1),
-% 	move_board(Move1, Board),
-% 	alphabeta(Player, Alpha, Beta, Board, _, Eval, Depth),
-% 	good_enough(Player, Moves, Alpha, Beta, Move1, Eval, BestMove, BestEval, Depth).
-
-% good_enough(Player, [], _, _, Move, Eval, Move, Eval, Depth) :- !.
-
-% good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
-% 	minimizing(Player), Eval > Alpha, !.
-
-% good_enough(Player, _, Alpha, Beta, Move, Eval, Move, Eval, Depth) :-
-% 	maximizing(Player), Eval < Beta, !.
-
-% good_enough(Player, Moves, Alpha, Beta, Move, Eval, BestMove, BestEval, Depth) :-
-% 	new_bounds(Player, Alpha, Beta, Eval, NewAlpha, NewBeta),
-% 	bounded_best(Player, NewAlpha, NewBeta, Moves, Move1, Eval1, Depth),
-% 	better_of(Player, Move, Eval, Move1, Eval1, BestMove, BestEval).
-
-% new_bounds(Player, Alpha, Beta, Eval, Eval, Beta) :-
-% 	minimizing(Player), Eval > Alpha, !.
-
-
-% new_bounds(Player, Alpha, Beta, Eval, Alpha, Eval) :-
-% 	maximizing(Player), Eval < Beta, !.
-
-
-
 alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
 	Depth < 30,
 	NewDepth is Depth + 1,
@@ -791,10 +693,6 @@ alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
 
 alphabeta(Player, Alpha, Beta, Board, NextMove, Eval, Depth) :-
 	evaluate_board(Board, Eval, 1), !.
-
-% bounded_best(Player, Alpha, Beta, [Move], Move, Eval, Depth) :-
-% 	move_board(Move, Board),
-% 	minimax(Player, Board, _, Eval, Depth), !.
 
 bounded_best(Player, Alpha, Beta, [Move|Moves], BestMove, BestEval, Depth) :-
 	dechain(Move, Move1),
@@ -864,33 +762,6 @@ print_move(e(X1, Y1, X2, Y2, _)) :- !,
 	write(') -> ('),
 	write(X2), write(','), write(Y2), write(')'), nl.
 
-% print_possible_moves(_, [], []) :- !,  nl.
-
-% print_possible_moves(Num, [m(X1,Y1,X2,Y2,Board)|Moves], [option(Num, m(X1,Y1,X2,Y2,Board))|Options]) :- !, 
-% 	write(Num), write(': ('), write(X1), write(','), write(Y1),
-% 	write(') -> ('),
-% 	write(X2), write(','), write(Y2), write(')'), nl,
-% 	NextNum is Num + 1,
-% 	print_possible_moves(NextNum, Moves, Options).
-
-
-% print_possible_moves(Num, [Chain|Moves], [option(Num, Chain)|Options]) :- !, 
-% 	write(Num), write(': '),
-% 	print_chain_moves(Chain),
-% 	NextNum is Num + 1,
-% 	print_possible_moves(NextNum, Moves, Options).
-
-% print_chain_moves([e(X1,Y1,X2,Y2,_)]) :- !, 
-% 	write('('), write(X1), write(','), write(Y1),
-% 	write(') -> ('),
-% 	write(X2), write(','), write(Y2), write(')'), nl.
-
-% print_chain_moves([e(X1,Y1,X2,Y2,_)|Chain]) :- !, 
-% 	write('('), write(X1), write(','), write(Y1),
-% 	write(') -> ('),
-% 	write(X2), write(','), write(Y2), write(') -> '),
-% 	print_chain_moves(Chain).
-
 main :-
 	abolish(current/2),
 	board_initialize_game(Board),
@@ -898,51 +769,6 @@ main :-
 	write('Prolog checkers'), nl,
 	write('To play select one of the options available:\n3. for example (the dot in the end is important!)\n'),
 	play.
-
-%% play :-
-%% 	current(Player, Board),
-%% 	board_print(Board),
-%% 	make_play(Player, Board).
-
-%% make_play(white, Board) :-
-%% 	write('White (computer) turn to play.'), nl,
-%% 	alphabeta(black, -1000, 1000, Board, NextMove, Eval, 0),    % Run alpha beta for current board
-%% 	write('Move evaluation: '), write(Eval), nl,
-%% 	print_move(NextMove),                                    
-%% 	move_board(NextMove, NewBoard),
-%% 	abolish(current/2),                                      % Replaces current in DB
-%% 	assert(current(black, NewBoard)),                        % and switches players
-%% 	play.
-	
-%% make_play(black, Board) :-
-%% 	write('Black (human) turn to play.'), nl,
-%% 	list_available_moves(Board, black, Moves),
-%%         write(Moves),nl,
-%% 	print_possible_moves(1 , Moves),                         % Prints the options the player has
-%% 	get_code(Input), get_code(_),                            % Eats a number and a /n
-%% 	code_to_number(Input, Option),                           % Transforms code into number
-%% 	write('Option: '), write(Option), nl,
-%% 	nth1(Option, Moves, Move),                               % Gets the selected options from the list of moves
-%% 	write('Move:'),write(Move),nl,
-%% 	dechain(Move,Move1),
-%% 	write('Move1:'),write(Move1),nl,
-%% 	move_board(Move1, NewBoard),
-%% 	write('black_move_board_succeeded'),nl,
-%% 	abolish(current/2),                                      % Replaces current in DB                              
-%% 	assert(current(white, NewBoard)),                        % and swicthes players
-%% 	play.
-	
-%% make_play(black, Board) :-
-%% 	write('Black (human) turn to play.'), nl,
-%% 	list_available_moves(Board, black, Moves),
-%% 	print_possible_moves(1 , Moves),        % Prints the options the player has
-%%  	read(Option),                           % Transforms code into number
-%% 	nth1(Option, Moves, Move),              % Gets the selected options from the list of moves
-%% 	dechain(Move,Move1),
-%% 	move_board(Move1, NewBoard),
-%% 	abolish(current/2),                     % Replaces current in DB
-%% 	assert(current(white, NewBoard)),       % and swicthes players
-%% 	play.
 
 play:-
     current(Player, Board),
